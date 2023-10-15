@@ -19,8 +19,8 @@ export default function About() {
             <br />
 
             <p>
-                <Image src="logo.png" alt="DataX Logo" width={180} height={37} /><br /><br />
-                DataX is a bid/ask marketplace for data similar to StockX where users can list data for sale and then people can set their asking price. Built using NextJS, Filecoin FVM, Tableland, Saturn, and web3.storage.
+                <Image src="logo.png" alt="Distributed Crypto Logo" width={180} height={37} /><br /><br />
+                Distributed Crypto is a bid/ask marketplace for data similar to StockX where users can list data for sale and then people can set their asking price. Built using NextJS, Filecoin FVM, Tableland, Saturn, and web3.storage.
             </p>
 
             {/* github */}

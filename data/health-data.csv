@@ -1,0 +1,11 @@
+PatientID,Gender,Age,MedicalCondition,Diagnosis,Prescription
+P001,Female,45,Hypertension,Stage 2,Losartan 50mg
+P002,Male,62,Diabetes Type 2,A1C 8.3,Metformin 1000mg
+P003,Female,28,Migraine,Chronic Sumatriptan,50mg
+P004,Male,58,Chronic Pain,Arthritis,Hydrocodone 10mg
+P005,Female,35,Depression,Major Depressive Disorder,Fluoxetine 20mg
+P006,Male,48,Anxiety Disorder,Generalized Anxiety Disorder,Alprazolam 0.5mg
+P007,Female,72,Osteoporosis,Severe,Alendronate 70mg
+P008,Male,54,Insomnia,Chronic Insomnia,Trazodone 50mg
+P009,Female,42,Asthma,Moderate,Albuterol Inhaler
+P010,Male,39,Allergies,Seasonal Allergies,Cetirizine 10mg

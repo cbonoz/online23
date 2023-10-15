@@ -48,7 +48,7 @@ function UiLayoutWrapper({ children }) {
 
             <Layout>
                 <Header style={{ background: '#fff', display: 'flex' }}>
-                    <Image src="/logo.png" alt="DataX Logo"
+                    <Image src="/logo.png" alt="Distributed Crypto Logo"
                         className='header-logo'
                         height={48}
                         onClick={() => {

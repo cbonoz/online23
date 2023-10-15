@@ -122,7 +122,7 @@ function CreateListing() {
       // Result rendered after successful doc upload + contract creation.
       setResult(res);
     } catch (e) {
-      console.error("error creating datax request", e);
+      console.error("error creating distributed crypto request", e);
       const message = e.reason || e.response?.message || e.message
       setError(humanError(message))
     } finally {
@@ -144,7 +144,7 @@ function CreateListing() {
       <Row>
         <Col span={24}>
           <div className="centered standard-margin">
-            <Image src="logo.png" alt="DataX Logo" width={180} height={37} />
+            <Image src="logo.png" alt="Distributed Crypto Logo" width={180} height={37} />
             <h3>Create new data listing</h3>
             <br />
             <br />

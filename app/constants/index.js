@@ -1,5 +1,5 @@
-export const APP_NAME = 'DataX'
-export const APP_DESC = 'DataX is a decentralized data marketplace that allows anyone to buy and sell data sets with just a wallet.'
+export const APP_NAME = 'Distributed Crypto'
+export const APP_DESC = 'Conditional data management and security'
 
 export const ACTIVE_CHAIN = {
     id: 314159,

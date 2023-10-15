@@ -9,19 +9,16 @@ import './globals.css';
 export default function RootLayout({ children }) {
 
   return (<html>
-    <Script async src="https://saturn.tech/widget.js" />
+    {/* <Script async src="https://saturn.tech/widget.js" /> */}
     <head>
       <link rel="preload" href="/fonts/AdelleSans-Regular.woff" as="font" crossOrigin="" />
       <link rel="preload" href="/fonts/AdelleSans-Regular.woff2" as="font" crossOrigin="" />
       <link rel="preload" href="/fonts/AdelleSans-Semibold.woff" as="font" crossOrigin="" />
       <link rel="preload" href="/fonts/AdelleSans-Semibold.woff2" as="font" crossOrigin="" />
 
-      <link rel="icon" href="/favicons/favicon.ico" sizes="any" />
-      {/* <link rel="icon" href="/favicons/icon.ico" type="image/svg+xml" /> */}
-      <link rel="apple-touch-icon" href="/favicons/apple-touch-icon.png" />
-      <link rel="manifest" href="/favicons/manifest.json" />
+      <link rel="favicon" href="/favicon.ico" sizes="any" />
 
-      <title>DataX | Open data collective and marketplace</title>
+      <title>Distributed Crypto | Distributed data management and security</title>
       <meta name="description" content="Privy Auth Starter" />
     </head>
     <body>
