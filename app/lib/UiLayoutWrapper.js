@@ -17,7 +17,7 @@ function UiLayoutWrapper({ children }) {
     const menuItems = [
         // {
         //     key: '/search',
-        //     label: <Link href="/search">Search listings</Link>,
+        //     label: <Link href="/search">Search uploads</Link>,
         //     href: '/search',
         // },
         {
@@ -47,7 +47,7 @@ function UiLayoutWrapper({ children }) {
 
             <Layout>
                 <Header style={{ background: '#fff', display: 'flex' }}>
-                    <Image src="/logo.png" alt="Distributed Crypto Logo"
+                    <Image src="/logo.png" alt="ChainGuard Logo"
                         className='header-logo'
                         height={48}
                         onClick={() => {

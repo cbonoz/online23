@@ -1,4 +1,4 @@
-export const APP_NAME = 'Distributed Crypto'
+export const APP_NAME = 'ChainGuard'
 export const APP_DESC = 'Conditional data management and security'
 
 export const ACTIVE_CHAIN = {
@@ -10,7 +10,7 @@ export const ACTIVE_CHAIN = {
     explorerUrl: 'https://calibration.filscan.io/',
 }
 
-export const LISTING_TABLE = process.env.NEXT_PUBLIC_LISTING_TABLE;
+export const UPLOAD_TABLE = process.env.NEXT_PUBLIC_UPLOAD_TABLE;
 export const OFFER_TABLE = process.env.NEXT_PUBLIC_OFFER_TABLE;
 
 export const EXAMPLE_ITEM = {

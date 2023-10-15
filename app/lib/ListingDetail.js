@@ -15,41 +15,41 @@ import {
     Result,
 } from 'antd';
 import Image from 'next/image'
-import { abbreviate, convertCamelToHuman, formatCurrency, formatListing, getExplorerUrl, humanError, ipfsUrl, isEmpty } from '../util';
+import { abbreviate, convertCamelToHuman, formatCurrency, formatUpload, getExplorerUrl, humanError, ipfsUrl, isEmpty } from '../util';
 import { ACTIVE_CHAIN, APP_NAME, EXAMPLE_OFFERS, STAT_KEYS } from '../constants';
 
 import { getMetadata, purchaseContract } from '../util/listingContract';
 
 
-const ListingDetail = ({ listingId }) => {
+const UploadDetail = ({ uploadId }) => {
     const [loading, setLoading] = useState(true)
     const [offerData, setOfferData] = useState(EXAMPLE_OFFERS)
     const [showOfferModal, setShowOfferModal] = useState(false)
     const [result, setResult] = useState()
     const [error, setError] = useState()
-    const [listing, setListing] = useState()
+    const [upload, setUpload] = useState()
     const [amount, setAmount] = useState()
-    console.log('listing', listingId)
+    console.log('upload', uploadId)
 
     const breadcrumbs = [
         {
-            title: 'Listings',
+            title: 'Uploads',
             href: '/search'
         },
         {
-            title: listing?.name,
-            href: `/listing/${listingId}`
+            title: upload?.name,
+            href: `/upload/${uploadId}`
         }
     ]
 
     async function makePurchase() {
         setLoading(true)
         try {
-            const res = await purchaseContract(provider.signer, listing.address, listing.price.toString())
+            const res = await purchaseContract(provider.signer, upload.address, upload.price.toString())
             console.log('purchase', res)
             setResult(res)
             try {
-                addPurchase(provider.signer, listing.address)
+                addPurchase(provider.signer, upload.address)
             } catch (e) {
 
             }
@@ -62,7 +62,7 @@ const ListingDetail = ({ listingId }) => {
     }
 
     return (
-        <div className="listing-detail-page">
+        <div className="upload-detail-page">
             <Breadcrumb items={breadcrumbs} />
             <br />
             <Card title={<span style={{ color: "green" }}>For Purchase</span>}>
@@ -72,4 +72,4 @@ const ListingDetail = ({ listingId }) => {
         </div>)
 };
 
-export default ListingDetail;
+export default UploadDetail;

@@ -37,7 +37,7 @@ export const ipfsUrl = (cid, fileName) => {
   return url;
 };
 
-export const listingUrl = (listingId) => `${window.location.origin}/listing/${listingId}`;
+export const uploadUrl = (uploadId) => `${window.location.origin}/upload/${uploadId}`;
 
 export const convertCamelToHuman = (str) => {
   // Check if likely datetime timestamp ms
@@ -93,15 +93,15 @@ export function bytesToSize(bytes) {
   return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
 }
 
-export const formatListing = (listing) => {
-  if (!listing) return {}
+export const formatUpload = (upload) => {
+  if (!upload) return {}
   return {
-    ...listing,
-    // shortAddress: abbreviate(listing.address),
-    created_by: abbreviate(listing.created_by),
-    created_at: formatDate(listing.created_at),
-    price: formatCurrency(ethers.utils.formatEther(listing.price + ""), ACTIVE_CHAIN.symbol),
-    verified: listing.verified ? 'Verified' : 'Unverified',
+    ...upload,
+    // shortAddress: abbreviate(upload.address),
+    created_by: abbreviate(upload.created_by),
+    created_at: formatDate(upload.created_at),
+    price: formatCurrency(ethers.utils.formatEther(upload.price + ""), ACTIVE_CHAIN.symbol),
+    verified: upload.verified ? 'Verified' : 'Unverified',
 
   }
 }

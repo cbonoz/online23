@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Button, Input, Row, Col, Steps, Result, Divider, Checkbox, Card, Image } from "antd";
-import { listingUrl, ipfsUrl, getExplorerUrl, humanError, isEmpty, } from "../util";
+import { uploadUrl, ipfsUrl, getExplorerUrl, humanError, isEmpty, } from "../util";
 import { uploadFiles } from "../util/stor";
 import TextArea from "antd/lib/input/TextArea";
 import { ACTIVE_CHAIN, APP_NAME } from "../constants";
@@ -102,25 +102,25 @@ function CreateListing() {
       // }
       res["cid"] = cid;
       res["contract"] = contract.address;
-      res["listingUrl"] = listingUrl(contract.address || cid);
+      res["uploadUrl"] = uploadUrl(contract.address || cid);
       res["contractUrl"] = getExplorerUrl(contract.address);
 
       // 3) create table entry
-      const listing = { ...data } // TODO: set all fields.
-      listing['address'] = contract.address;
+      const upload = { ...data } // TODO: set all fields.
+      upload['address'] = contract.address;
 
       try {
-        // const price  = ethers.utils.parseEther(listing.price).toString()
-        const listingResult = createListing(provider.signer, listing)
+        // const price  = ethers.utils.parseEther(upload.price).toString()
+        const uploadResult = createUpload(provider.signer, upload)
       } catch (e) {
-        console.error('error creating db listing', e)
+        console.error('error creating db upload', e)
         // res['dbError'] = JSON.stringify(e.message || e.response?.message || e)
       }
 
       // Result rendered after successful doc upload + contract creation.
       setResult(res);
     } catch (e) {
-      console.error("error creating distributed crypto request", e);
+      console.error("error creating chainguard request", e);
       const message = e.reason || e.response?.message || e.message
       setError(humanError(message))
     } finally {
@@ -142,8 +142,8 @@ function CreateListing() {
       <Row>
         <Col span={24}>
           <div className="centered standard-margin">
-            <Image src="logo.png" alt="Distributed Crypto Logo" width={180} height={37} />
-            <h3>Create new data listing</h3>
+            <Image src="logo.png" alt="ChainGuard Logo" width={180} height={37} />
+            <h3>Create new data upload</h3>
             <br />
             <br />
           </div>
@@ -166,7 +166,7 @@ function CreateListing() {
 
               <h4>Name</h4>
               <Input
-                placeholder="Name of listing"
+                placeholder="Name of upload"
                 value={data.name}
                 onChange={(e) => updateData("name", e.target.value)}
               />
@@ -180,39 +180,6 @@ function CreateListing() {
                 prefix="Description"
                 value={data.description}
               />
-              <br />
-              <br />
-
-
-              <h4>Price ({ACTIVE_CHAIN.symbol})</h4>
-              <Input
-                placeholder="Purchase price"
-                value={data.price}
-                onChange={(e) => updateData("price", e.target.value)}
-              />
-              <br />
-              <br />
-
-
-
-              <h4>[Optional] Listing image (link)</h4>
-              <Input
-                placeholder="Provide a link to an image describing your listing"
-                value={data.image}
-                onChange={(e) => updateData("image", e.target.value)}
-              />
-              <br />
-              <br />
-
-
-              <h4>[Optional] Keywords (enter separated by comma)</h4>
-              <Input
-                placeholder={"Add keywords to help others understand and find your listing"}
-                value={data.keywords}
-                onChange={(e) => updateData("keywords", e.target.value)}
-              />
-              <br />
-              <br />
               <h4>Address</h4>
               <Input
                 placeholder={'Your address'}
@@ -275,15 +242,15 @@ function CreateListing() {
                   loading={loading}
                   size="large"
                 >
-                  Create Listing
+                  Create Upload
                 </Button>
 
                 {!error && !result && loading && (
-                <span className="italic">&nbsp;Deploying a listing contract. Confirmation may take a few moments.</span>
+                <span className="italic">&nbsp;Deploying a DataContract. Confirmation may take a few moments.</span>
               )}
                 <Divider/>
 
-                <p className="bold">Note: Listings are considered unverified until confirmed by an admin of {APP_NAME} after posting.
+                <p className="bold">Note: Uploads are considered unverified until confirmed by an admin of {APP_NAME} after posting.
 
                 </p>
               </div>
@@ -294,7 +261,7 @@ function CreateListing() {
             {error && <div className="error-text">Error: {error}</div>}
             {result && (<div>
               <Result status="success"
-                title="Listing created! Confirm last transaction to index the result" subTitle="Access your data page and content below. It may take a few minutes to confirm the listing on the network." />
+                title="Upload created! Confirm last transaction to index the result" subTitle="Access your data page and content below. It may take a few minutes to confirm the upload on the network." />
               <div>
                 <Button href={ipfsUrl(result.cid)} target="_blank">
                   Download files
@@ -309,9 +276,9 @@ function CreateListing() {
                 <p>
                   Share or post this page with potential buyers:
                   <br />
-                  <a href={result.listingUrl} target="_blank">
-                    View listing page 
-                  </a> (the listing may take a few minutes to become available on the network).
+                  <a href={result.uploadUrl} target="_blank">
+                    View upload page 
+                  </a> (the upload may take a few minutes to become available on the network).
                 </p>
               </div>
             </div>
@@ -329,7 +296,7 @@ function CreateListing() {
                 title: 'Fill in fields',
                 description: 'Enter required data.'
               }, {
-                title: `Create ${APP_NAME} listing`,
+                title: `Create ${APP_NAME} upload`,
                 description: 'Deploys a smart contract and creates a purchase page for the dataset'
               }, {
                 title: 'Use the generated purchase page to sell your data',
@@ -343,7 +310,5 @@ function CreateListing() {
     </div>
   );
 }
-
-CreateListing.propTypes = {};
 
 export default CreateListing;

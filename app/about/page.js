@@ -19,7 +19,7 @@ export default function About() {
             <br />
 
             <p>
-                <Image src="logo.png" alt="Distributed Crypto Logo" width={180} height={37} /><br /><br />
+                <Image src="logo.png" alt="ChainGuard Logo" width={180} height={37} /><br /><br />
                 {APP_NAME} | {APP_DESC}
             </p>
 
@@ -40,7 +40,7 @@ export default function About() {
 
             <p>
 
-                {/* Create listing */}
+                {/* Create upload */}
                 <Button type="primary" onClick={() => {
                     router.push('/create')
                 }}>Create secure data upload</Button>&nbsp;

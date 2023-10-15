@@ -8,7 +8,7 @@ export default function Admin() {
     const [tableResult, setTableResult] = useState()
     const [verifyResult, setVerifyResult] = useState()
     const [error, setError] = useState()
-    const [listingId, setListingId] = useState()
+    const [uploadId, setUploadId] = useState()
     return <div>
         <h1>Admin</h1>
     </div>

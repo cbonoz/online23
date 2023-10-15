@@ -49,7 +49,7 @@ a {
   font-size: 14px;
 }
 
-.listing-card {
+.upload-card {
   margin: 5px;
   display: inline-block;
   width: 280px;
@@ -110,7 +110,7 @@ a {
   cursor: pointer;
 }
 
-.listing-section {
+.upload-section {
   clear: both;
   margin-top: 50px;
 

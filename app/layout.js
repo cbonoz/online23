@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
 
       <link rel="favicon" href="/favicon.ico" sizes="any" />
 
-      <title>Distributed Crypto | Distributed data management and security</title>
+      <title>ChainGuard | Distributed data management and security</title>
       <meta name="description" content="Privy Auth Starter" />
     </head>
     <body>
