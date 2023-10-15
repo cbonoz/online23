@@ -6,7 +6,6 @@ import { uploadUrl, ipfsUrl, getExplorerUrl, humanError, isEmpty, } from "../uti
 import { uploadFiles } from "../util/stor";
 import TextArea from "antd/lib/input/TextArea";
 import { ACTIVE_CHAIN, APP_NAME } from "../constants";
-import { generateItem } from "../constants";
 import { FileDrop } from "./FileDrop";
 import { ethers } from "ethers";
 import { deployContract } from "../util/listingContract";
@@ -31,7 +30,7 @@ function CreateListing() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState();
 
-  const setDemo = () => setData({ ...generateItem(1) })
+  const setDemo = () => setData({ ...EXAMPLE(1) })
 
   const updateData = (key, value) => {
     setData({ ...data, [key]: value });

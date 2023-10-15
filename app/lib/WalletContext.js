@@ -18,6 +18,7 @@ export const WalletProvider = ({ children }) => {
   const [account, setAccount] = useState();
   const [provider, setProvider] = useState();
   const [network, setNetwork] = useState();
+  const [safeSDK, setSafeSDK] = useState();
 
   // Connect to the network
   useEffect(() => {
@@ -31,6 +32,8 @@ export const WalletProvider = ({ children }) => {
     };
     init();
   }, []);
+
+  
 
   return (
     <WalletContext.Provider value={{ account, provider, network }}>
