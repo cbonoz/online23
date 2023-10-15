@@ -25,8 +25,8 @@ export default function About() {
 
             {/* github */}
             <p>
-                {APP_NAME} is an open source project. You can find the code on GitHub here:&nbsp;
-                <a href="https://github.com/open23" target="_blank">GitHub</a>&nbsp;
+                {APP_NAME} is an open source project. You can find the code on GitHub&nbsp;
+                <a href="https://github.com/cbonoz/online23" target="_blank">here</a>.
             </p>
 
             <p>
@@ -34,8 +34,9 @@ export default function About() {
             </p>
 
             <p>
-                Follow the guide here to unpack your purchased content.
-                https://web3.storage/docs/how-tos/work-with-car-files/
+                Follow the guide here to unpack your retrieved content:<br/>
+                <a href="web3.storage/docs/how-tos/work-with-car-files/" target="_blank">
+                https://web3.storage/docs/how-tos/work-with-car-files/</a>
             </p>
 
             <p>
@@ -47,21 +48,6 @@ export default function About() {
 
 
             </p>
-
-            <Divider />
-
-            <Card title="Upload ideas">
-
-
-                {EXAMPLE_DATASETS.map((item, i) => {
-                    return <div key={i}>
-                        <h4>{item.name}</h4>
-                        <p>{item.description}</p>
-                        <p>{item.example}</p>
-                    </div>
-                })}
-
-            </Card>
 
         </div>
     )

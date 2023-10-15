@@ -41,8 +41,16 @@ Identity Verification Services: Identity verification services can confirm the a
 Keep Network is a decentralized key management system that allows users to store their private keys in a secure and distributed manner. However, it is still under development and does not support natural language statements or cross-chain transactions.
 Secret Network is a privacy-focused blockchain platform that allows users to store and manage data securely. However, it is still under development and does not support natural language statements or cross-chain transactions.
 
-
 ## What it does
+
+ChainGuard can secure any piece of Filecoin data using any of the conditions below:
+1) A cross chain transaction has occured through Wormhole.
+2) An UMA oracle precondition has occurred (user specified). Example use cases: revealing data only after a person has died or a particular sports team won an event.
+3) A specified pre-determined address must be calling the contract
+
+For every data upload, a smart contract is deployed that secures the payload. Every uploaded artifact gets a unique sharable url on ChainGuard that can be accessed at any time, but only reveals the data on condition satisfaction.
+
+If the conditions above are met, the data is revealed and decrypted at the sharing url and delivered decryped to the user on the page via Filecoin Saturn.
 
 ### Core functions
 * Upload and lock dataset
@@ -58,6 +66,8 @@ UMA: Used for natural language data unlock
 Hyperlane: Used for cross transactions
 
 Sismo: Verify connected wallet has some criteria
+
+Safe: Api and auth kits.
 
 Filecoin: Data upload and security until unencrypted
 

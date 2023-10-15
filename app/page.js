@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 // TODO: change
 const CHECKLIST_ITEMS = [
   "Conditionally secured data sets using natural language and cross-chain conditions",
-  "No middle man fees. Instant delivery of data.",
+  "Unlock data when cross-chain conditions are met",
   "No user accounts or vendor agreements required."
 ];
 

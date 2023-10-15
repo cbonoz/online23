@@ -183,7 +183,7 @@ function CreateListing() {
               <h4>Address</h4>
               <Input
                 placeholder={'Your address'}
-                value={wallet?.address || data.createdby}
+                value={wallet?.address || data.createdBy}
                 disabled
                 onChange={(e) => updateData("createdBy", e.target.value)}
               />
@@ -217,6 +217,14 @@ function CreateListing() {
                   />
                 </Card>
               </>}
+
+              <p>Enter a list of addresses that could potentially access the data</p>
+
+                <Divider/>
+
+              <p>
+                Enter conditions:
+              </p>
 
               {!data.useCid && <>
                 <Card title="Upload dataset(s) for purchaseable collection">
@@ -294,12 +302,12 @@ function CreateListing() {
               size="small"
               items={[{
                 title: 'Fill in fields',
-                description: 'Enter required data.'
+                description: 'Upload data and specify access conditions.'
               }, {
                 title: `Create ${APP_NAME} upload`,
-                description: 'Deploys a smart contract and creates a purchase page for the dataset'
+                description: 'Deploys a smart contract and creates an access page for the dataset'
               }, {
-                title: 'Use the generated purchase page to sell your data',
+                title: 'Share the generated access url for your data',
               }]}
               current={getStep()}
             >

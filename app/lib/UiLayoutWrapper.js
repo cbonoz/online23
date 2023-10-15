@@ -17,7 +17,7 @@ function UiLayoutWrapper({ children }) {
     const menuItems = [
         // {
         //     key: '/search',
-        //     label: <Link href="/search">Search uploads</Link>,
+        //     label: <Link href="/search">Search listings</Link>,
         //     href: '/search',
         // },
         {
@@ -53,7 +53,7 @@ function UiLayoutWrapper({ children }) {
                         onClick={() => {
                             window.location.href = '/'
                         }}
-                        width={200}
+                        width={180}
                         />
 
                     <Menu style={{ minWidth: '800px' }}
@@ -80,7 +80,7 @@ function UiLayoutWrapper({ children }) {
                     <hr />
                     <br />
                     {APP_NAME} ©2023. Created for the&nbsp;
-                    <a href="https://www.encode.club/open-data-hack" target='_blank'>Encode Open Data Hack</a>.
+                    <a href="https://ethglobal.com/events/ethonline2023" target='_blank'>EthOnline 2023</a> hackathon.
 
                 </Footer>
             </Layout>
