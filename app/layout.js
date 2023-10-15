@@ -1,8 +1,4 @@
-import Head from 'next/head';
-import Script from 'next/script';
 import UiLayoutWrapper from './lib/UiLayoutWrapper';
-
-import { WalletProviderWrapper } from './lib/WalletProviderWrapper';
 
 import './globals.css';
 
@@ -22,11 +18,9 @@ export default function RootLayout({ children }) {
       <meta name="description" content="Privy Auth Starter" />
     </head>
     <body>
-      <WalletProviderWrapper>
-        <UiLayoutWrapper>
-          {children}
-        </UiLayoutWrapper>
-      </WalletProviderWrapper>
+      <UiLayoutWrapper>
+        {children}
+      </UiLayoutWrapper>
     </body>
   </html>
   )

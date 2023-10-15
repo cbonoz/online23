@@ -1,6 +1,6 @@
 'use client';
 
-import { APP_NAME, EXAMPLE_DATASETS } from "../constants";
+import { APP_DESC, APP_NAME, EXAMPLE_DATASETS } from "../constants";
 import Image from 'next/image'
 import Button from 'antd/es/button'
 import { useRouter } from "next/navigation";
@@ -20,7 +20,7 @@ export default function About() {
 
             <p>
                 <Image src="logo.png" alt="Distributed Crypto Logo" width={180} height={37} /><br /><br />
-                Distributed Crypto is a bid/ask marketplace for data similar to StockX where users can list data for sale and then people can set their asking price. Built using NextJS, Filecoin FVM, Tableland, Saturn, and web3.storage.
+                {APP_NAME} | {APP_DESC}
             </p>
 
             {/* github */}
@@ -33,20 +33,17 @@ export default function About() {
                 Files served from {APP_NAME} are verified and secured with Filecoin Saturn.
             </p>
 
-            <p>Note this is a hackathon prototype and would require additional work to be mainnet ready. By uploading data you agree that this service is used as-is and that data may be compromised or shared outside the platform.</p>
-
             <p>
                 Follow the guide here to unpack your purchased content.
                 https://web3.storage/docs/how-tos/work-with-car-files/
             </p>
-
 
             <p>
 
                 {/* Create listing */}
                 <Button type="primary" onClick={() => {
                     router.push('/create')
-                }}>Create new listing</Button>&nbsp;
+                }}>Create secure data upload</Button>&nbsp;
 
 
             </p>

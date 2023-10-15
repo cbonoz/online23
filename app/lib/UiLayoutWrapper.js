@@ -1,7 +1,6 @@
 'use client';
 
 import { usePathname } from "next/navigation"
-import { useWallet } from "./WalletProviderWrapper"
 import Link from "next/link";
 import { abbreviate, isAdminAddress } from "../util";
 import { ACTIVE_CHAIN, APP_NAME } from "../constants";
@@ -13,14 +12,14 @@ import Image from "next/image";
 function UiLayoutWrapper({ children }) {
 
     const pathname = usePathname()
-    const { connect, wallet, logout } = useWallet()
+    const { connect, wallet, logout } = {}
 
     const menuItems = [
-        {
-            key: '/search',
-            label: <Link href="/search">Search listings</Link>,
-            href: '/search',
-        },
+        // {
+        //     key: '/search',
+        //     label: <Link href="/search">Search listings</Link>,
+        //     href: '/search',
+        // },
         {
             key: '/create',
             label: <Link href="/create">Create</Link>,
@@ -54,7 +53,7 @@ function UiLayoutWrapper({ children }) {
                         onClick={() => {
                             window.location.href = '/'
                         }}
-                        width={160}
+                        width={200}
                         />
 
                     <Menu style={{ minWidth: '800px' }}

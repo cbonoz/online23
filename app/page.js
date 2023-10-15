@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 
 // TODO: change
 const CHECKLIST_ITEMS = [
-  "An open data bid/ask marketplace backed by FEVM, Tableland, and Dataverse.",
+  "Conditionally secured data sets using natural language and cross-chain conditions",
   "No middle man fees. Instant delivery of data.",
   "No user accounts or vendor agreements required."
 ];
@@ -45,9 +45,6 @@ const Home = () => {
           <Button className='standard-btn' size="large" type="primary" onClick={() => router.push('/create')}>
             Create a data listing
           </Button>&nbsp;
-          <Button className='standard-btn' size="large" type="dashed" onClick={() => router.push('/search')}>
-            Search listings
-          </Button>
         </div>
       </Col>
       <Col span={12}>

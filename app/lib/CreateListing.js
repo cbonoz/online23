@@ -8,16 +8,15 @@ import TextArea from "antd/lib/input/TextArea";
 import { ACTIVE_CHAIN, APP_NAME } from "../constants";
 import { generateItem } from "../constants";
 import { FileDrop } from "./FileDrop";
-import { createListing } from "../util/tableland";
 import { ethers } from "ethers";
 import { deployContract } from "../util/listingContract";
-import { useWallet } from "./WalletProviderWrapper";
 
 const { Step } = Steps;
 
 function CreateListing() {
-  const { connect, provider, wallet, logout } = useWallet()
+  const provider = {};
 
+  const wallet = {}
 
   //   useEffect(() => {
   //     const networkId = network?.chain?.id
@@ -81,7 +80,6 @@ function CreateListing() {
     let res = { ...data };
 
     try {
-      // TODO: add step 1/2 once tableland indexing ready.
       // 1) Create files/metadata to ipfs.
       let cid = data.cid
       if (!data.useCid) {
