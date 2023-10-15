@@ -21,7 +21,7 @@ import { ACTIVE_CHAIN, APP_NAME, EXAMPLE_OFFERS, STAT_KEYS } from '../constants'
 import { getMetadata, purchaseContract } from '../util/listingContract';
 
 
-const UploadDetail = ({ uploadId }) => {
+const ListingDetail = ({ uploadId }) => {
     const [loading, setLoading] = useState(true)
     const [offerData, setOfferData] = useState(EXAMPLE_OFFERS)
     const [showOfferModal, setShowOfferModal] = useState(false)
@@ -72,4 +72,4 @@ const UploadDetail = ({ uploadId }) => {
         </div>)
 };
 
-export default UploadDetail;
+export default ListingDetail;

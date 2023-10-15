@@ -63,7 +63,7 @@ Filecoin: Data upload and security until unencrypted
 
 Lit Protocol: Core encryption and decryption
 
-NextJS: We utilized NextJS to create a responsive and interactive frontend interface that offers a seamless browsing experience for users. Deployed on surge. -->
+NextJS: We utilized NextJS to create a responsive and interactive frontend interface that offers a seamless browsing experience for users. Deployed on vercel. -->
 
 ## Running the project (from scratch)
 
