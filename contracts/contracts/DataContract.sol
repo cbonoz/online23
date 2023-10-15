@@ -1,8 +1,9 @@
 pragma solidity ^0.8.21;
 // License
 // SPDX-License-Identifier: MIT
-import "@wormhole-solidity-sdk/interfaces/IWormholeRelayer.sol";
-import "@wormhole-solidity-sdk/interfaces/IWormholeReceiver.sol";
+import "@wormhole-solidity-sdk/src/interfaces/IWormholeRelayer.sol";
+
+import "@wormhole-solidity-sdk/src/interfaces/IWormholeReceiver.sol";
 
 // import "@uma/core/contracts/optimistic-oracle-v3/interfaces/OptimisticOracleV3Interface.sol";
 
@@ -51,7 +52,8 @@ contract DataContract is IWormholeReceiver {
 
     mapping(address => bool) public hasAccess;
 
-    constructor(string memory _cid, string memory _assertion) {
+    constructor(string memory _cid, string memory _assertion, address _wormholeRelayer) {
+        wormholeRelayer = IWormholeRelayer(_wormholeRelayer);
         deployer = msg.sender;
         assertedClaim = bytes(_assertion);
         cid = _cid;
@@ -59,13 +61,13 @@ contract DataContract is IWormholeReceiver {
         totalAccess = 0;
     }
 
-    event AccessEvent(address indexed _buyer, uint256 _price);
+    event AccessEvent(address indexed _buyer);
     event MessageReceived(string message, uint16 sourceChain, address sender);
 
     function requestAccess() public payable returns (string memory) {
         require(active, "Contract was marked inactive by creator");
-        if (price != 0 && !hasAccess[msg.sender]) {
-            emit AccessEvent(msg.sender, price);
+        if (!hasAccess[msg.sender]) {
+            emit AccessEvent(msg.sender);
             totalAccess += 1;
         }
         hasAccess[msg.sender] = true;
@@ -75,18 +77,14 @@ contract DataContract is IWormholeReceiver {
     function getMetadata()
         public
         view
-        returns (string memory, uint256, bool, uint256)
+        returns (string memory, bool, uint256)
     {
-        return (hasAccess[msg.sender] ? cid : "", price, active, totalAccess);
+        return (hasAccess[msg.sender] ? cid : "", active, totalAccess);
     }
 
     function toggleActive() public {
         require(msg.sender == deployer);
         active = !active;
-    }
-
-    constructor(address _wormholeRelayer) {
-        wormholeRelayer = IWormholeRelayer(_wormholeRelayer);
     }
 
     function quoteCrossChainmessage(

@@ -3,6 +3,7 @@ node_modules
 artifacts
 .next
 out
+contracts/cache
 *lock
 .DS_Store
 .env

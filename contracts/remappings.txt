@@ -1,3 +1,2 @@
-forge-std/=lib/forge-std/src/
-@openzeppelin/=lib/openzeppelin-contracts/
 @uma/=lib/protocol/packages/
+@wormhole-solidity-sdk=lib/wormhole-solidity-sdk
