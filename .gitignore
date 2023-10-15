@@ -1,7 +1,6 @@
 # misc
 node_modules
 artifacts
-contracts
 .next
 out
 *lock
