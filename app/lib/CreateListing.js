@@ -5,7 +5,7 @@ import { Button, Input, Row, Col, Steps, Result, Divider, Checkbox, Card, Image 
 import { uploadUrl, ipfsUrl, getExplorerUrl, humanError, isEmpty, } from "../util";
 import { uploadFiles } from "../util/stor";
 import TextArea from "antd/lib/input/TextArea";
-import { EXAMPLE_ITEM, UMA_ORACLE_MAP,  ACTIVE_CHAIN, APP_NAME, WORMHOLE_RELAYER_MAP } from "../constants";
+import { EXAMPLE_ITEM, UMA_ORACLE_MAP, ACTIVE_CHAIN, APP_NAME, WORMHOLE_RELAYER_MAP } from "../constants";
 import { FileDrop } from "./FileDrop";
 import { ethers } from "ethers";
 import { deployContract } from "../util/listingContract";
@@ -102,7 +102,8 @@ function CreateListing() {
       const activeChainId = chain?.id || ACTIVE_CHAIN.id
       const umaOracleAdress = UMA_ORACLE_MAP[activeChainId]
       const wormholeAddress = WORMHOLE_RELAYER_MAP[activeChainId]
-      contract = await deployContract(signer, cid, data.assertion || '', wormholeAddress, umaOracleAdress);
+      const assertion = data.assertion || ''
+      contract = await deployContract(signer, cid, assertion, data.name, data.description, wormholeAddress, umaOracleAdress);
       // contract = {
       //   address: '0x1234'
       // }

@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
-import { DATA_CONTRACT} from "./metadata";
+import { DATA_CONTRACT } from "./metadata";
 
-export async function deployContract(signer, cid, assertion, wormholeAddress, umaOracleAdress) {
+export async function deployContract(signer, cid, assertion, name, description, wormholeAddress, umaOracleAdress) {
     // Deploy contract with ethers
     const factory = new ethers.ContractFactory(
         DATA_CONTRACT.abi,
@@ -9,7 +9,7 @@ export async function deployContract(signer, cid, assertion, wormholeAddress, um
         signer
     );
 
-    const contract = await factory.deploy(cid, assertion, wormholeAddress, umaOracleAdress);
+    const contract = await factory.deploy(cid, assertion, name, description, assertion, wormholeAddress, umaOracleAdress);
     // log
     console.log("Deploying contract...", cid, assertion, wormholeAddress, umaOracleAdress);
     await contract.deployed();
@@ -29,7 +29,7 @@ export async function requestAccess(signer, contractAddress) {
     await tx.wait();
     console.log("Request access tx...", tx);
     const result = await contract.requestAccess.call();
-    return {cid: result};
+    return { cid: result };
 }
 
 export const getMetadata = async (signer, address) => {

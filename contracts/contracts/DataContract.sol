@@ -22,6 +22,9 @@ contract DataContract is IWormholeReceiver {
 
     address public umaAddress;
 
+    string private name;
+    string private description;
+
     // OptimisticOracleV3Interface oov3 = OptimisticOracleV3Interface(0x9923D42eF695B5dd9911D05Ac944d4cAca3c4EAB);
 
     // Asserted claim. This is some truth statement about the world and can be verified by the network of disputers.
@@ -54,9 +57,18 @@ contract DataContract is IWormholeReceiver {
 
     mapping(address => bool) public hasAccess;
 
-    constructor(string memory _cid, string memory _assertion, address _wormholeRelayer, address _umaAddress) {
+    constructor(
+        string memory _cid,
+        string memory _assertion,
+        string memory _name,
+        string memory _description,
+        address _wormholeRelayer,
+        address _umaAddress
+    ) {
         wormholeRelayer = IWormholeRelayer(_wormholeRelayer);
         deployer = msg.sender;
+        name = _name;
+        description = _description;
         assertedClaim = bytes(_assertion);
         umaAddress = _umaAddress;
         cid = _cid;
@@ -80,9 +92,15 @@ contract DataContract is IWormholeReceiver {
     function getMetadata()
         public
         view
-        returns (string memory, bool, uint256)
+        returns (string memory, string memory, string memory, bool, uint256)
     {
-        return (hasAccess[msg.sender] ? cid : "", active, totalAccess);
+        return (
+            hasAccess[msg.sender] ? cid : "",
+            name,
+            description,
+            active,
+            totalAccess
+        );
     }
 
     function toggleActive() public {
