@@ -8,6 +8,7 @@ import StyledComponentsRegistry from "./AntdRegistry";
 import { Button, Layout, Menu } from "antd";
 import { Content, Footer, Header } from "antd/es/layout/layout";
 import Image from "next/image";
+import ConnectButton from "./ConnectButton";
 
 function UiLayoutWrapper({ children }) {
 
@@ -60,10 +61,10 @@ function UiLayoutWrapper({ children }) {
                         mode="horizontal" defaultSelectedKeys={pathname} items={menuItems} />
 
                     <span style={{ float: 'right', right: 20, position: 'absolute' }}>
-                        {!wallet?.address && <Button href="#" type="primary" onClick={connect}>Connect</Button>}
-                        {wallet?.address && <span>{abbreviate(wallet?.address)}&nbsp;(<a href="#" onClick={logout}>logout</a>)</span>}
+                        <ConnectButton />
+                        {/* {!wallet?.address && <Button href="#" type="primary" onClick={connect}>Connect</Button>} */}
+                        {/* {wallet?.address && <span>{abbreviate(wallet?.address)}&nbsp;(<a href="#" onClick={logout}>logout</a>)</span>} */}
                     </span>
-
 
                 </Header>
                     <span className='float-right bold active-network' >

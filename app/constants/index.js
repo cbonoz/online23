@@ -9,6 +9,14 @@ export const CHAIN_OPTIONS = [
 
 export const ACTIVE_CHAIN = CHAIN_OPTIONS[0]
 
+export const UMA_ORACLE_MAP ={
+  [polygonMumbai.id]: '0x263351499f82C107e540B01F0Ca959843e22464a'
+}
+
+export const WORMHOLE_RELAYER_MAP = {
+  [polygonMumbai.id]: '0x0CBE91CF822c73C2315FB05100C2F714765d5c20'
+}
+
 // export const ACTIVE_CHAIN = {
 //     id: 314159,
 //     name: 'Filecoin Calibration',
@@ -25,6 +33,7 @@ export const EXAMPLE_ITEM = {
     "id": 1,
     "name": "Oil price data set",
     "description": "The data contains Weekly crude oil prices from 5/1987 to 9/2023",
+    "assertion": "Did the Philadelphia eagles win the super bowl in 2022?",
 }
 
 // export const IPFS_BASE_URL = 'https://ipfs.filebase.io/ipfs'

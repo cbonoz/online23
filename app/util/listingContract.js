@@ -1,23 +1,23 @@
 import { ethers } from "ethers";
 import { DATA_CONTRACT} from "./metadata";
-import { ADMIN_ADDRESS } from "../constants";
 
-export async function deployContract(signer, cid, price) {
+export async function deployContract(signer, cid, assertion, wormholeAddress, umaOracleAdress) {
     // Deploy contract with ethers
     const factory = new ethers.ContractFactory(
         DATA_CONTRACT.abi,
         DATA_CONTRACT.bytecode,
         signer
     );
-    const contract = await factory.deploy(cid, price, ADMIN_ADDRESS); // must match contract.
+
+    const contract = await factory.deploy(cid, assertion, wormholeAddress, umaOracleAdress);
     // log
-    console.log("Deploying contract...", cid, price);
+    console.log("Deploying contract...", cid, assertion, wormholeAddress, umaOracleAdress);
     await contract.deployed();
     console.log("deployed contract...", contract.address);
     return contract;
 }
 
-export async function purchaseContract(signer, contractAddress, price) {
+export async function requestAccess(signer, contractAddress) {
     // Deploy contract with ethers
     const contract = new ethers.Contract(
         contractAddress,
@@ -25,10 +25,10 @@ export async function purchaseContract(signer, contractAddress, price) {
         signer
     );
     // log
-    const tx = await contract.purchaseAccess({ value: price });
+    const tx = await contract.requestAccess();
     await tx.wait();
-    console.log("Purchased contract...", tx);
-    const result = await contract.purchaseAccess.call();
+    console.log("Request access tx...", tx);
+    const result = await contract.requestAccess.call();
     return {cid: result};
 }
 

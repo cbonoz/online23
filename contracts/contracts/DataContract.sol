@@ -1,4 +1,4 @@
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.16;
 // License
 // SPDX-License-Identifier: MIT
 import "@wormhole-solidity-sdk/src/interfaces/IWormholeRelayer.sol";
@@ -19,6 +19,8 @@ contract DataContract is IWormholeReceiver {
     IWormholeRelayer public immutable wormholeRelayer;
     uint256 constant GAS_LIMIT = 50_000;
     string public latestmessage;
+
+    address public umaAddress;
 
     // OptimisticOracleV3Interface oov3 = OptimisticOracleV3Interface(0x9923D42eF695B5dd9911D05Ac944d4cAca3c4EAB);
 
@@ -52,10 +54,11 @@ contract DataContract is IWormholeReceiver {
 
     mapping(address => bool) public hasAccess;
 
-    constructor(string memory _cid, string memory _assertion, address _wormholeRelayer) {
+    constructor(string memory _cid, string memory _assertion, address _wormholeRelayer, address _umaAddress) {
         wormholeRelayer = IWormholeRelayer(_wormholeRelayer);
         deployer = msg.sender;
         assertedClaim = bytes(_assertion);
+        umaAddress = _umaAddress;
         cid = _cid;
         active = true;
         totalAccess = 0;

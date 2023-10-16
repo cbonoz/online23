@@ -97,7 +97,7 @@ export function FileDrop({ files, setFiles }) {
         <p>Drag &apos;n&apos; drop some files here, or click to select files</p>
       </div>
       <br />
-      <b>{files.length === 0 ? 'No files uploaded' : 'Files to upload:'}</b>
+      <b>{files.length === 0 ? 'Please upload at least one file' : 'Files to upload:'}</b>
       <aside style={thumbsContainer}>{thumbs}</aside>
     </section>
   );

@@ -1,11 +1,13 @@
 import UiLayoutWrapper from './lib/UiLayoutWrapper';
+import WagmiWrapper from './lib/WagmiWrapper';
+import Script from 'next/script';
 
 import './globals.css';
 
 export default function RootLayout({ children }) {
 
   return (<html>
-    {/* <Script async src="https://saturn.tech/widget.js" /> */}
+    <Script async src="https://saturn.tech/widget.js" />
     <head>
       <link rel="preload" href="/fonts/AdelleSans-Regular.woff" as="font" crossOrigin="" />
       <link rel="preload" href="/fonts/AdelleSans-Regular.woff2" as="font" crossOrigin="" />
@@ -18,9 +20,11 @@ export default function RootLayout({ children }) {
       <meta name="description" content="Privy Auth Starter" />
     </head>
     <body>
+    <WagmiWrapper>
       <UiLayoutWrapper>
         {children}
       </UiLayoutWrapper>
+      </WagmiWrapper>
     </body>
   </html>
   )

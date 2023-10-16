@@ -5,17 +5,22 @@ import { Button, Input, Row, Col, Steps, Result, Divider, Checkbox, Card, Image 
 import { uploadUrl, ipfsUrl, getExplorerUrl, humanError, isEmpty, } from "../util";
 import { uploadFiles } from "../util/stor";
 import TextArea from "antd/lib/input/TextArea";
-import { ACTIVE_CHAIN, APP_NAME } from "../constants";
+import { EXAMPLE_ITEM, UMA_ORACLE_MAP,  ACTIVE_CHAIN, APP_NAME, WORMHOLE_RELAYER_MAP } from "../constants";
 import { FileDrop } from "./FileDrop";
 import { ethers } from "ethers";
 import { deployContract } from "../util/listingContract";
+import { useAccount, useNetwork } from "wagmi";
+import ConnectButton from "./ConnectButton";
+import { useEthersSigner } from '../hooks/useEthersSigner'
 
 const { Step } = Steps;
 
 function CreateListing() {
   const provider = {};
+  const { address } = useAccount()
+  const { chain } = useNetwork()
 
-  const wallet = {}
+  const signer = useEthersSigner({ chainId: chain?.id })
 
   //   useEffect(() => {
   //     const networkId = network?.chain?.id
@@ -30,21 +35,21 @@ function CreateListing() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState();
 
-  const setDemo = () => setData({ ...EXAMPLE(1) })
+  const setDemo = () => setData({ ...EXAMPLE_ITEM })
 
   const updateData = (key, value) => {
     setData({ ...data, [key]: value });
   };
 
   const getActiveError = (data) => {
-    if (!data.name || !data.description || !data.price) {
-      return "Please provide a name, description, price for the item.";
+    if (!data.name || !data.description) {
+      return "Please provide a name and description for the upload.";
     }
 
     if (!data.useCid && isEmpty(data.files)) {
       return "Must add at least one file";
     } else if (data.useCid && isEmpty(data.cid)) {
-      return "Must provide a CID for the dataset";
+      return "Must provide a CID for the upload";
     }
 
     return undefined
@@ -60,7 +65,7 @@ function CreateListing() {
       return;
     }
 
-    if (!provider) {
+    if (!signer) {
       setError(`Please connect a valid ${ACTIVE_CHAIN.name} wallet`);
       return;
     }
@@ -94,8 +99,10 @@ function CreateListing() {
 
       // 2) deploy contract with initial metadata
       let contract;
-      const priceWei = ethers.utils.parseEther(res.price.toString()).toString();
-      contract = await deployContract(provider.signer, cid, priceWei);
+      const activeChainId = chain?.id || ACTIVE_CHAIN.id
+      const umaOracleAdress = UMA_ORACLE_MAP[activeChainId]
+      const wormholeAddress = WORMHOLE_RELAYER_MAP[activeChainId]
+      contract = await deployContract(signer, cid, data.assertion || '', wormholeAddress, umaOracleAdress);
       // contract = {
       //   address: '0x1234'
       // }
@@ -108,13 +115,12 @@ function CreateListing() {
       const upload = { ...data } // TODO: set all fields.
       upload['address'] = contract.address;
 
-      try {
-        // const price  = ethers.utils.parseEther(upload.price).toString()
-        const uploadResult = createUpload(provider.signer, upload)
-      } catch (e) {
-        console.error('error creating db upload', e)
-        // res['dbError'] = JSON.stringify(e.message || e.response?.message || e)
-      }
+      // tableland
+      // try {
+      //   const uploadResult = createUpload(provider.signer, upload)
+      // } catch (e) {
+      //   console.error('error creating db upload', e)
+      // }
 
       // Result rendered after successful doc upload + contract creation.
       setResult(res);
@@ -175,14 +181,16 @@ function CreateListing() {
               <TextArea
                 aria-label="Description"
                 onChange={(e) => updateData("description", e.target.value)}
-                placeholder="Add any additional description on the dataset"
+                placeholder="Add any additional description on the upload"
                 prefix="Description"
                 value={data.description}
               />
+              <br />
+              <br />
               <h4>Address</h4>
               <Input
                 placeholder={'Your address'}
-                value={wallet?.address || data.createdBy}
+                value={address || data.createdBy}
                 disabled
                 onChange={(e) => updateData("createdBy", e.target.value)}
               />
@@ -204,29 +212,35 @@ function CreateListing() {
 
               {data.useCid && <>
 
-                <Card title="Provide CID link to dataset">
+                <Card title="Provide CID link">
                   <br />
-                  <p>Use an existing dataset cid or a <a href="https://lotus.filecoin.io/tutorials/lotus/large-files/" target="_blank">Lotus</a> client to upload an encrypted or unencrypted (less secure) dataset.</p>
+                  <p>Use an existing cid or a <a href="https://lotus.filecoin.io/tutorials/lotus/large-files/" target="_blank">Lotus</a> client to upload an encrypted or unencrypted (less secure) dataset.</p>
                   <br />
-                  <h4>Dataset CID</h4>
+                  <h4>Data CID</h4>
                   <Input
-                    placeholder="Dataset CID"
+                    placeholder="Data CID"
                     value={data.cid}
                     onChange={(e) => updateData("cid", e.target.value)}
                   />
                 </Card>
               </>}
 
-              <p>Enter a list of addresses that could potentially access the data</p>
+              {/* <p>Enter a list of addresses that could potentially access the data</p> */}
 
-                <Divider/>
+              <Card title="Enter access condition(s)">
 
-              <p>
-                Enter conditions:
-              </p>
+                {/* UMA assertion */}
+                <Input
+                  placeholder="Enter UMA assertion"
+                  value={data.assertion}
+                  onChange={(e) => updateData("assertion", e.target.value)} />
+
+              </Card>
+
+              {/* <p>Enter conditions:</p> */}
 
               {!data.useCid && <>
-                <Card title="Upload dataset(s) for purchaseable collection">
+                <Card title="Upload file">
 
                   {/* <h3 className="vertical-margin">Upload dataset(s) for purchaseable collection</h3> */}
                   <FileDrop
@@ -241,7 +255,8 @@ function CreateListing() {
 
               <div>
 
-                <Button
+                <Divider />
+                {address && <Button
                   type="primary"
                   className="standard-button"
                   onClick={create}
@@ -250,18 +265,16 @@ function CreateListing() {
                   size="large"
                 >
                   Create Upload
-                </Button>
+                </Button>}
+
+                {!address && <ConnectButton text="Connect wallet to continue" />}
 
                 {!error && !result && loading && (
-                <span className="italic">&nbsp;Deploying a DataContract. Confirmation may take a few moments.</span>
-              )}
-                <Divider/>
+                  <span className="italic">&nbsp;Deploying a DataContract. Confirmation may take a few moments.</span>
+                )}
 
-                <p className="bold">Note: Uploads are considered unverified until confirmed by an admin of {APP_NAME} after posting.
-
-                </p>
               </div>
-      
+
               <br />
               <br />
             </>}
@@ -273,7 +286,7 @@ function CreateListing() {
                 <Button href={ipfsUrl(result.cid)} target="_blank">
                   Download files
                 </Button>
-                 {/* (download secure <a href="https://spec.filecoin.io/systems/filecoin_files/piece/#:~:text=In%20order%20to%20make%20a,un%2DCAR'ed%20constructions." target="_blank">.car</a> format) */}
+                {/* (download secure <a href="https://spec.filecoin.io/systems/filecoin_files/piece/#:~:text=In%20order%20to%20make%20a,un%2DCAR'ed%20constructions." target="_blank">.car</a> format) */}
                 <br />
                 <a href={result.contractUrl} target="_blank">
                   View created contract
@@ -284,7 +297,7 @@ function CreateListing() {
                   Share or post this page with potential buyers:
                   <br />
                   <a href={result.uploadUrl} target="_blank">
-                    View upload page 
+                    View upload page
                   </a> (the upload may take a few minutes to become available on the network).
                 </p>
               </div>
@@ -314,7 +327,7 @@ function CreateListing() {
           </div>
         </Col>
       </Row>
-    </div>
+    </div >
   );
 }
 
