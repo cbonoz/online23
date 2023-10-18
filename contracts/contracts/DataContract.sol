@@ -29,7 +29,8 @@ contract DataContract is IWormholeReceiver {
 
     // Asserted claim. This is some truth statement about the world and can be verified by the network of disputers.
     // bytes public assertedClaim = bytes("Argentina won the 2022 Fifa world cup in Qatar");
-    bytes public assertedClaim;
+    string private assertion;
+    bytes private assertedClaim;
     bytes32 public assertionId;
 
     // function assertTruth() public {
@@ -69,6 +70,7 @@ contract DataContract is IWormholeReceiver {
         deployer = msg.sender;
         name = _name;
         description = _description;
+        assertion = _assertion;
         assertedClaim = bytes(_assertion);
         umaAddress = _umaAddress;
         cid = _cid;
@@ -92,12 +94,22 @@ contract DataContract is IWormholeReceiver {
     function getMetadata()
         public
         view
-        returns (string memory, string memory, string memory, bool, uint256)
+        returns (
+            string memory,
+            string memory,
+            string memory,
+            string memory,
+            address,
+            bool,
+            uint256
+        )
     {
         return (
-            hasAccess[msg.sender] ? cid : "",
             name,
             description,
+            hasAccess[msg.sender] ? cid : "",
+            assertion,
+            deployer,
             active,
             totalAccess
         );

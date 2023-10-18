@@ -56,8 +56,10 @@ export function capitalize(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export const getExplorerUrl = (hash, useTx) =>
-  `${ACTIVE_CHAIN.explorerUrl}${useTx ? "tx/" : "address/"}${hash}${ACTIVE_CHAIN.id === 31415 ? '?network=wallaby' : ''}`;
+const getBlockExplorerFromChain = (chain) => chain?.blockExplorers?.default?.url || chain?.blockExplorerUrls?.[0]
+
+export const getExplorerUrl = (chain, hash, useTx) =>
+  `${getBlockExplorerFromChain(chain)}/${useTx ? "tx/" : "address/"}${hash}${ACTIVE_CHAIN.id === 31415 ? '?network=wallaby' : ''}`;
 
 export const createJsonFile = (signload, fileName) => {
   const st = JSON.stringify(signload);

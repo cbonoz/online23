@@ -5,7 +5,7 @@ import { Button, Input, Row, Col, Steps, Result, Divider, Checkbox, Card, Image 
 import { uploadUrl, ipfsUrl, getExplorerUrl, humanError, isEmpty, } from "../util";
 import { uploadFiles } from "../util/stor";
 import TextArea from "antd/lib/input/TextArea";
-import { EXAMPLE_ITEM, UMA_ORACLE_MAP, ACTIVE_CHAIN, APP_NAME, WORMHOLE_RELAYER_MAP } from "../constants";
+import { EXAMPLE_ITEM, UMA_ORACLE_MAP, ACTIVE_CHAIN, APP_NAME, WORMHOLE_RELAYER_MAP, DEFAULT_ACCESS_CONDITIONS } from "../constants";
 import { FileDrop } from "./FileDrop";
 import { ethers } from "ethers";
 import { deployContract } from "../util/listingContract";
@@ -16,7 +16,6 @@ import { useEthersSigner } from '../hooks/useEthersSigner'
 const { Step } = Steps;
 
 function CreateListing() {
-  const provider = {};
   const { address } = useAccount()
   const { chain } = useNetwork()
 
@@ -90,7 +89,8 @@ function CreateListing() {
         if (!isEmpty(data.files)) {
           cid = await uploadFiles(
             files,
-            res
+            res,
+            data.accessControlConditions || DEFAULT_ACCESS_CONDITIONS
           );
         } else {
           throw new Error("No files found");
@@ -110,7 +110,7 @@ function CreateListing() {
       res["cid"] = cid;
       res["contract"] = contract.address;
       res["uploadUrl"] = uploadUrl(contract.address || cid);
-      res["contractUrl"] = getExplorerUrl(contract.address);
+      res["contractUrl"] = getExplorerUrl(chain, contract.address);
 
       // 3) create table entry
       const upload = { ...data } // TODO: set all fields.
@@ -284,9 +284,9 @@ function CreateListing() {
               <Result status="success"
                 title="Upload created! Confirm last transaction to index the result" subTitle="Access your data page and content below. It may take a few minutes to confirm the upload on the network." />
               <div>
-                <Button href={ipfsUrl(result.cid)} target="_blank">
+                <a href={ipfsUrl(result.cid)} target="_blank">
                   Download files
-                </Button>
+                </a>
                 {/* (download secure <a href="https://spec.filecoin.io/systems/filecoin_files/piece/#:~:text=In%20order%20to%20make%20a,un%2DCAR'ed%20constructions." target="_blank">.car</a> format) */}
                 <br />
                 <a href={result.contractUrl} target="_blank">

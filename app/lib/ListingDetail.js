@@ -4,9 +4,13 @@ import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import {
     Card,
     Breadcrumb,
+    Row,
+    Col,
+    Button,
 } from 'antd';
-import { abbreviate, convertCamelToHuman, formatCurrency, formatUpload, getExplorerUrl, humanError, ipfsUrl, isEmpty } from '../util';
-import { ACTIVE_CHAIN, APP_NAME, EXAMPLE_OFFERS, STAT_KEYS } from '../constants';
+import { getExplorerUrl, humanError, ipfsUrl, } from '../util';
+import { ACTIVE_CHAIN, } from '../constants';
+import RenderObject from '../lib/RenderObject';
 
 import { getMetadata, requestAccess } from '../util/listingContract';
 import { useAccount, useNetwork } from 'wagmi';
@@ -23,6 +27,7 @@ const ListingDetail = ({ uploadId }) => {
     const { address } = useAccount();
     const { chain } = useNetwork();
     const signer = useEthersSigner({ chainId: chain?.id || ACTIVE_CHAIN.id })
+
     const breadcrumbs = [
         {
             title: 'Uploads',
@@ -36,13 +41,16 @@ const ListingDetail = ({ uploadId }) => {
 
     async function accessData() {
         setLoading(true)
+        setError()
         try {
-            const res = await requestAccess(provider.signer, upload.address);
+            await requestAccess(signer, uploadId);
             console.log('request access', res)
             setResult(res)
+            await getData();
         } catch (e) {
             console.error('error requesting access', e)
-            alert('Error requesting access: ' + humanError(e));
+            // alert('Error requesting access: ' + humanError(e));
+            setError(humanError(e))
         } finally {
             setLoading(false)
         }
@@ -53,6 +61,7 @@ const ListingDetail = ({ uploadId }) => {
 
         try {
             const d = await getMetadata(signer, uploadId)
+            d['contract'] = uploadId;
             console.log('got data', d)
             setData(d)
         } catch (e) {
@@ -91,7 +100,27 @@ const ListingDetail = ({ uploadId }) => {
                 {loading && <p>Loading...</p>}
                 {error && <p>Error: {humanError(error)}</p>}
                 {!signer && <p>Connect your wallet to view this upload.</p>}
-                {JSON.stringify(data)}
+
+                <Row>
+                    <Col span={12}>
+                        {/* <p>Contract Address: {uploadId}</p> */}
+                        <RenderObject json={data} />
+
+
+                <a href={getExplorerUrl(ACTIVE_CHAIN, uploadId)} target="_blank">View contract</a>
+
+                    </Col>
+                    <Col span={12}>
+                        <Button 
+                        type="primary"
+                        size="large"
+                        disabled={loading} loading={loading} onClick={accessData}>Check Access</Button>
+
+                        {data?.cid && <p>Access: <a href={ipfsUrl(data.cid)}>{data.cid}</a></p>}
+                        {error && <p>Error: {error}</p>}
+                    </Col>
+                </Row>
+                {/* {JSON.stringify(data)} */}
             </Card>
         </div >)
 };

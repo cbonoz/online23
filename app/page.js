@@ -43,7 +43,7 @@ const Home = () => {
         </div>
         <div>
           <Button className='standard-btn' size="large" type="primary" onClick={() => router.push('/create')}>
-            Create a data upload
+            Create new data upload
           </Button>&nbsp;
         </div>
       </Col>

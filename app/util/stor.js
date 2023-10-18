@@ -1,6 +1,7 @@
 // import { Web3Storage } from "web3.storage";
 import axios from 'axios'
 import { Web3Storage } from "web3.storage/dist/bundle.esm.min.js"; // webpack 4
+import { encryptUserFile } from "./litHelper";
 
 const API_KEY = process.env.NEXT_PUBLIC_STORAGE_KEY;
 
@@ -12,8 +13,16 @@ function makeStorageClient() {
   return new Web3Storage({ token: getAccessToken() });
 }
 
-export async function uploadFiles(files, metadata) {
-  const newFiles = [...files]
+export async function uploadFiles(files, metadata, accessControlConditions) {
+  // Encrypt the file bytes data
+  const file = files[0];
+  const { zipBlob, encryptedSymmetricKey, symmetricKey } = await encryptUserFile(file, accessControlConditions || [])
+  // Create a new File object with the encrypted data
+  const encryptedFile = new File([zipBlob], file.name);
+  const encryptedFiles = [encryptedFile];
+  // Upload the encrypted file
+
+  const newFiles = [...encryptedFiles]
   if (metadata) {
     const blob = new Blob([JSON.stringify(metadata)], { type: 'application/json' })
     const metaFile = new File([blob], 'metadata.json')

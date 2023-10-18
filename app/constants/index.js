@@ -17,6 +17,21 @@ export const WORMHOLE_RELAYER_MAP = {
   [polygonMumbai.id]: '0x0CBE91CF822c73C2315FB05100C2F714765d5c20'
 }
 
+
+export const DEFAULT_ACCESS_CONDITIONS = [
+  {
+    contractAddress: "",
+    standardContractType: "",
+    chain: 'mumbai',
+    method: "eth_getBalance",
+    parameters: [":userAddress", "latest"],
+    returnValueTest: {
+      comparator: ">=",
+      value: "1000000000000", // 0.000001 ETH
+    },
+  },
+];
+
 // export const ACTIVE_CHAIN = {
 //     id: 314159,
 //     name: 'Filecoin Calibration',

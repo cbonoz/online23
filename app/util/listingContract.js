@@ -9,7 +9,7 @@ export async function deployContract(signer, cid, assertion, name, description, 
         signer
     );
 
-    const contract = await factory.deploy(cid, assertion, name, description, assertion, wormholeAddress, umaOracleAdress);
+    const contract = await factory.deploy(cid, assertion, name, description, wormholeAddress, umaOracleAdress);
     // log
     console.log("Deploying contract...", cid, assertion, wormholeAddress, umaOracleAdress);
     await contract.deployed();
@@ -39,5 +39,13 @@ export const getMetadata = async (signer, address) => {
         signer
     );
     const result = await contract.getMetadata.call();
-    return result;
+    return {
+        name: result[0],
+        description: result[1],
+        cid: result[2],
+        assertion: result[3],
+        owner: result[4],
+        active: result[5],
+        totalAccess: result[6].toNumber(),
+    };
 }
