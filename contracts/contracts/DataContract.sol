@@ -2,7 +2,6 @@ pragma solidity ^0.8.16;
 // License
 // SPDX-License-Identifier: MIT
 import "@wormhole-solidity-sdk/src/interfaces/IWormholeRelayer.sol";
-
 import "@wormhole-solidity-sdk/src/interfaces/IWormholeReceiver.sol";
 
 // import "@uma/core/contracts/optimistic-oracle-v3/interfaces/OptimisticOracleV3Interface.sol";
@@ -25,6 +24,8 @@ contract DataContract is IWormholeReceiver {
     string private name;
     string private description;
 
+    mapping(bytes32 => bool) public seenDeliveryVaaHashes;
+    mapping(address => bool) public seenMessages;
     // OptimisticOracleV3Interface oov3 = OptimisticOracleV3Interface(0x9923D42eF695B5dd9911D05Ac944d4cAca3c4EAB);
 
     // Asserted claim. This is some truth statement about the world and can be verified by the network of disputers.
@@ -32,6 +33,12 @@ contract DataContract is IWormholeReceiver {
     string private assertion;
     bytes private assertedClaim;
     bytes32 public assertionId;
+
+    address public crossChainAddress;
+    uint256 public crossChainChainId;
+
+    bool private crossChainSet;
+
 
     // function assertTruth() public {
     //     assertionId = oov3.assertTruthWithDefaults(
@@ -75,6 +82,7 @@ contract DataContract is IWormholeReceiver {
         umaAddress = _umaAddress;
         cid = _cid;
         active = true;
+        crossChainSet = false;
         totalAccess = 0;
     }
 
@@ -83,6 +91,17 @@ contract DataContract is IWormholeReceiver {
 
     function requestAccess() public payable returns (string memory) {
         require(active, "Contract was marked inactive by creator");
+
+        // Check assertion if assertionClaim is nonempty
+        if (assertedClaim.length != 0) {
+        }
+
+
+        // Check cross chain transaction has been set if chainId is nonzero
+        if (crossChainChainId != 0) {
+            require(crossChainSet, "Cross chain transaction requirement not met");
+        }
+
         if (!hasAccess[msg.sender]) {
             emit AccessEvent(msg.sender);
             totalAccess += 1;
@@ -100,6 +119,8 @@ contract DataContract is IWormholeReceiver {
             string memory,
             string memory,
             address,
+            uint256,
+            address,
             bool,
             uint256
         )
@@ -109,6 +130,8 @@ contract DataContract is IWormholeReceiver {
             description,
             hasAccess[msg.sender] ? cid : "",
             assertion,
+            crossChainAddress,
+            crossChainChainId,
             deployer,
             active,
             totalAccess
@@ -146,7 +169,6 @@ contract DataContract is IWormholeReceiver {
         );
     }
 
-    mapping(bytes32 => bool) public seenDeliveryVaaHashes;
 
     function receiveWormholeMessages(
         bytes memory payload,

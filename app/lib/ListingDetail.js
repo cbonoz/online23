@@ -105,16 +105,14 @@ const ListingDetail = ({ uploadId }) => {
                     <Col span={12}>
                         {/* <p>Contract Address: {uploadId}</p> */}
                         <RenderObject json={data} />
-
-
-                <a href={getExplorerUrl(ACTIVE_CHAIN, uploadId)} target="_blank">View contract</a>
+                        <a href={getExplorerUrl(ACTIVE_CHAIN, uploadId)} target="_blank">View contract</a>
 
                     </Col>
                     <Col span={12}>
-                        <Button 
-                        type="primary"
-                        size="large"
-                        disabled={loading} loading={loading} onClick={accessData}>Check Access</Button>
+                        <Button
+                            type="primary"
+                            size="large"
+                            disabled={loading} loading={loading} onClick={accessData}>Check Access</Button>
 
                         {data?.cid && <p>Access: <a href={ipfsUrl(data.cid)}>{data.cid}</a></p>}
                         {error && <p>Error: {error}</p>}

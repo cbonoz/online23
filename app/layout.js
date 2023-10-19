@@ -7,7 +7,7 @@ import './globals.css';
 export default function RootLayout({ children }) {
 
   return (<html>
-    <Script async src="https://saturn.tech/widget.js" />
+    {/* <Script async src="https://saturn.tech/widget.js" /> */}
     <head>
       <link rel="favicon" href="/favicon.ico" sizes="any" />
       <title>ChainGuard | Distributed data management and security</title>

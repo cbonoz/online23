@@ -1,13 +1,14 @@
 'use client'
 
 import React, { useEffect, useState } from "react";
-import { Button, Input, Row, Col, Steps, Result, Divider, Checkbox, Card, Image } from "antd";
+import { Button, Input, Row, Col, Steps, Result, Divider, Checkbox, Card, Image, Tooltip, Select, Switch } from "antd";
 import { uploadUrl, ipfsUrl, getExplorerUrl, humanError, isEmpty, } from "../util";
 import { uploadFiles } from "../util/stor";
 import TextArea from "antd/lib/input/TextArea";
-import { EXAMPLE_ITEM, UMA_ORACLE_MAP, ACTIVE_CHAIN, APP_NAME, WORMHOLE_RELAYER_MAP, DEFAULT_ACCESS_CONDITIONS } from "../constants";
+import { EXAMPLE_ITEM, UMA_ORACLE_MAP, ACTIVE_CHAIN, APP_NAME, WORMHOLE_RELAYER_MAP, DEFAULT_ACCESS_CONDITIONS, CHAIN_OPTIONS } from "../constants";
 import { FileDrop } from "./FileDrop";
 import { ethers } from "ethers";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import { deployContract } from "../util/listingContract";
 import { useAccount, useNetwork } from "wagmi";
 import ConnectButton from "./ConnectButton";
@@ -87,6 +88,7 @@ function CreateListing() {
       let cid = data.cid
       if (!data.useCid) {
         if (!isEmpty(data.files)) {
+          res['fileName'] = data.files[0].name
           cid = await uploadFiles(
             files,
             res,
@@ -147,7 +149,7 @@ function CreateListing() {
     <div>
       <Row>
         <Col span={24}>
-          <div className="centered standard-margin">
+          <div className="centered">
             <Image src="logo.png" alt="ChainGuard Logo" width={180} height={37} />
             <h3>Create new data upload</h3>
             <br />
@@ -196,24 +198,97 @@ function CreateListing() {
                 onChange={(e) => updateData("createdBy", e.target.value)}
               />
 
+              <br />
+              <br />
+
+
+              {/* <p>Enter a list of addresses that could potentially access the data</p> */}
+
+              <Card title="Enter access condition(s)">
+
+                <p>These conditions must be met for the data to be accessed and decrypted. Otherwise the data is shareable and public by default.</p>
+                <Divider />
+
+                <Switch
+                  checked={data.hasAssertion}
+                  onChange={(e) => updateData("hasAssertion", e)}
+                />&nbsp;<span className="bold">Add logical assertion&nbsp;
+                  <Tooltip className="pointer" title="This is a statement that will be used to determine if the data is accessible. For example, if the statement is 'Argentina won the 2022 Fifa world cup in Qatar' this would release the data if or once true">
+                    <InfoCircleOutlined className="info-icon" />
+                  </Tooltip>
+                </span>
+                <br />
+                {data.hasAssertion && <div>
+                  <br />
+                  {/* UMA assertion */}
+                  <h4>Enter truth statement&nbsp;
+
+                  </h4>
+                  <Input
+                    placeholder="Enter UMA assertion"
+                    value={data.assertion}
+                    onChange={(e) => updateData("assertion", e.target.value)} />
+                </div>}
+
+                <Divider />
+                <Switch
+                  checked={data.hasCrossChainCondition}
+                  onChange={(e) => updateData("hasCrossChainCondition", e)}
+                />&nbsp;<span className="bold">Add cross-chain condition&nbsp;
+                  <Tooltip className="pointer" title="This is a condition that requires a cross chain action to take place before the data can be accessed">
+                    <InfoCircleOutlined className="info-icon" />
+                  </Tooltip>
+                </span>
+
+
+                {data.hasCrossChainCondition && <div>
+                  <br />
+
+
+                  <h4>Enter cross-chain condition to unlock the data</h4>
+                  <br />
+                  A transaction from&nbsp;
+                  <Input
+                  style={{ width: 400 }}
+                    placeholder="Enter address"
+                    value={data.crossChainConditionAddress}
+                    onChange={(e) => updateData("crossChainAddress", e.target.value)} />
+                  <br />
+                  on chain&nbsp;
+
+                  <Select
+                  style={{ width: 200 }}
+                    value={data.crossChainId || CHAIN_OPTIONS[0].id}
+                    onChange={(value) => updateData("crossChainId", value)}
+                  >
+                    {CHAIN_OPTIONS.map((c) => (
+                      <Select.Option value={c.id}>{c.name}</Select.Option>
+                    ))}
+
+                  </Select>
+                  &nbsp;to the deployed ChainGuard contract.
+
+
+                </div>}
+
+              </Card>
+
               {/* Checkbox for useCid */}
               <br />
               <br />
-              <h4>Is this a large dataset (over 5MB) or do you have a CID already?</h4>
+              <h4>Is this a large dataset (over 5MB) or do you have a CID already?&nbsp;
 
-              <Checkbox
-                type="checkbox"
-                checked={data.useCid}
-                onChange={(e) => updateData("useCid", e.target.checked)}
-              />
-
+                <Checkbox
+                  type="checkbox"
+                  checked={data.useCid}
+                  onChange={(e) => updateData("useCid", e.target.checked)}
+                />
+              </h4>
               <br />
-              <br />
-
 
               {data.useCid && <>
 
-                <Card title="Provide CID link">
+                <Card title="Provide CID link (large file)">
                   <br />
                   <p>Use an existing cid or a <a href="https://lotus.filecoin.io/tutorials/lotus/large-files/" target="_blank">Lotus</a> client to upload an encrypted or unencrypted (less secure) dataset.</p>
                   <br />
@@ -225,23 +300,8 @@ function CreateListing() {
                   />
                 </Card>
               </>}
-
-              {/* <p>Enter a list of addresses that could potentially access the data</p> */}
-
-              <Card title="Enter access condition(s)">
-
-                {/* UMA assertion */}
-                <Input
-                  placeholder="Enter UMA assertion"
-                  value={data.assertion}
-                  onChange={(e) => updateData("assertion", e.target.value)} />
-
-              </Card>
-
-              {/* <p>Enter conditions:</p> */}
-
               {!data.useCid && <>
-                <Card title="Upload file">
+                <Card title="Upload secured file">
 
                   {/* <h3 className="vertical-margin">Upload dataset(s) for purchaseable collection</h3> */}
                   <FileDrop
