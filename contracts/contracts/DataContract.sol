@@ -26,17 +26,16 @@ contract DataContract is IWormholeReceiver {
 
     mapping(bytes32 => bool) public seenDeliveryVaaHashes;
 
-    OptimisticOracleV3Interface oov3 =
-        OptimisticOracleV3Interface(0x9923D42eF695B5dd9911D05Ac944d4cAca3c4EAB);
-
+    OptimisticOracleV3Interface public oov3;
     // Asserted claim. This is some truth statement about the world and can be verified by the network of disputers.
     // bytes public assertedClaim = bytes("Argentina won the 2022 Fifa world cup in Qatar");
     string private assertion;
+    string private allowedAddresses;
     bytes private assertedClaim;
     bytes32 public assertionId;
 
     address public crossChainAddress;
-    uint256 public crossChainChainId;
+    uint256 public crossChainId;
 
     bool private crossChainSet;
 
@@ -84,6 +83,8 @@ contract DataContract is IWormholeReceiver {
         active = true;
         crossChainSet = false;
         totalAccess = 0;
+       oov3  =
+        OptimisticOracleV3Interface(_umaAddress);
     }
 
     event AccessEvent(address indexed _buyer);
@@ -107,7 +108,7 @@ contract DataContract is IWormholeReceiver {
         }
 
         // Check cross chain transaction has been set if chainId is nonzero
-        if (crossChainChainId != 0) {
+        if (crossChainId != 0) {
             require(
                 crossChainSet,
                 "Cross chain transaction requirement not met"
@@ -143,7 +144,7 @@ contract DataContract is IWormholeReceiver {
             hasAccess[msg.sender] ? cid : "",
             assertion,
             crossChainAddress,
-            crossChainChainId,
+            crossChainId,
             deployer,
             active,
             totalAccess
@@ -204,7 +205,7 @@ contract DataContract is IWormholeReceiver {
         );
 
         // See if address and source match cross chain condition.
-        if (crossChainAddress == sender && crossChainChainId == sourceChain) {
+        if (crossChainAddress == sender && crossChainId == sourceChain) {
             crossChainSet = true;
         }
 

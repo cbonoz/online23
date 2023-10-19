@@ -79,6 +79,17 @@ export const isEmpty = (r) => {
   return !r || r.length === 0
 }
 
+export const getRpcError = (error) => {
+  if (error?.data?.message) {
+    return error.data.message;
+  } else if (error?.reason) { 
+    return error.reason;
+  } else if (error?.message) {
+    return error.message;
+  }
+  return JSON.stringify(error);
+};
+
 export const humanError = message => {
   if (message.indexOf('404') !== -1) {
     message = 'Dataset not found. Do you have the correct url? Otherwise, try creating a new dataset.'

@@ -5,14 +5,14 @@ import { Button, Input, Row, Col, Steps, Result, Divider, Checkbox, Card, Image,
 import { uploadUrl, ipfsUrl, getExplorerUrl, humanError, isEmpty, } from "../util";
 import { uploadFiles } from "../util/stor";
 import TextArea from "antd/lib/input/TextArea";
-import { EXAMPLE_ITEM, UMA_ORACLE_MAP, ACTIVE_CHAIN, APP_NAME, WORMHOLE_RELAYER_MAP, DEFAULT_ACCESS_CONDITIONS, CHAIN_OPTIONS } from "../constants";
+import { EXAMPLE_ITEM, UMA_ORACLE_MAP, ACTIVE_CHAIN, APP_NAME, WORMHOLE_RELAYER_MAP, DEFAULT_ACCESS_CONDITIONS, CHAIN_OPTIONS, CHAIN_MAP } from "../constants";
 import { FileDrop } from "./FileDrop";
-import { ethers } from "ethers";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { deployContract } from "../util/listingContract";
 import { useAccount, useNetwork } from "wagmi";
 import ConnectButton from "./ConnectButton";
 import { useEthersSigner } from '../hooks/useEthersSigner'
+import { polygonMumbai } from "viem/chains";
 
 const { Step } = Steps;
 
@@ -22,7 +22,6 @@ function CreateListing() {
 
   const signer = useEthersSigner({ chainId: chain?.id })
   const activeChain = CHAIN_OPTIONS[chain?.id] || ACTIVE_CHAIN
-
   //   useEffect(() => {
   //     const networkId = network?.chain?.id
   //     console.log('network', network)
@@ -208,70 +207,96 @@ function CreateListing() {
               <Card title="Enter access condition(s)">
 
                 <p>These conditions must be met for the data to be accessed and decrypted. Otherwise the data is shareable and public by default.</p>
-                <Divider />
+                {false && <div><Divider />
 
-                <Switch
-                  checked={data.hasAssertion}
-                  onChange={(e) => updateData("hasAssertion", e)}
-                />&nbsp;<span className="bold">Add logical assertion&nbsp;
-                  <Tooltip className="pointer" title="This is a statement that will be used to determine if the data is accessible. For example, if the statement is 'Argentina won the 2022 Fifa world cup in Qatar' this would release the data if or once true">
-                    <InfoCircleOutlined className="info-icon" />
-                  </Tooltip>
-                </span>
-                <br />
-                {data.hasAssertion && <div>
+                  <Switch
+                    checked={data.hasAllowedAddresses}
+                    onChange={(e) => updateData("hasAllowedAddresses", e)}
+                  /> & nbsp;<span className="bold">Add allowed address&nbsp;
+                    <Tooltip className="pointer" title="Specify a list of addresses that can access the data.">
+                      <InfoCircleOutlined className="info-icon" />
+                    </Tooltip>
+                  </span>
+                  <br /></div>}
+                {data.hasAllowedAddresses && <div>
                   <br />
                   {/* UMA assertion */}
-                  <h4>Enter truth statement&nbsp;
+                  <h4>Enter allowed address&nbsp;
 
                   </h4>
                   <Input
-                    placeholder="Enter UMA assertion"
-                    value={data.assertion}
-                    onChange={(e) => updateData("assertion", e.target.value)} />
+                    placeholder="Enter allowed address separated by a comma"
+                    value={data.allowedAddresses}
+                    onChange={(e) => updateData("allowedAddresses", e.target.value)} />
                 </div>}
 
                 <Divider />
-                <Switch
-                  checked={data.hasCrossChainCondition}
-                  onChange={(e) => updateData("hasCrossChainCondition", e)}
-                />&nbsp;<span className="bold">Add cross-chain condition&nbsp;
-                  <Tooltip className="pointer" title="This is a condition that requires a cross chain action to take place before the data can be accessed">
-                    <InfoCircleOutlined className="info-icon" />
-                  </Tooltip>
-                </span>
 
+                {activeChain.id === polygonMumbai.id && <div>
 
-                {data.hasCrossChainCondition && <div>
+                  <Switch
+                    checked={data.hasAssertion}
+                    onChange={(e) => updateData("hasAssertion", e)}
+                  />&nbsp;<span className="bold">Add logical assertion&nbsp;
+                    <Tooltip className="pointer" title="This is a statement that will be used to determine if the data is accessible. For example, if the statement is 'Argentina won the 2022 Fifa world cup in Qatar' this would release the data if or once true">
+                      <InfoCircleOutlined className="info-icon" />
+                    </Tooltip>
+                  </span>
                   <br />
+                  {data.hasAssertion && <div>
+                    <br />
+                    {/* UMA assertion */}
+                    <h4>Enter truth statement&nbsp;
+
+                    </h4>
+                    <Input
+                      placeholder="Enter UMA assertion"
+                      value={data.assertion}
+                      onChange={(e) => updateData("assertion", e.target.value)} />
+                  </div>}
+
+                  <Divider />
+                  <Switch
+                    checked={data.hasCrossChainCondition}
+                    onChange={(e) => updateData("hasCrossChainCondition", e)}
+                  />&nbsp;<span className="bold">Add cross-chain condition&nbsp;
+                    <Tooltip className="pointer" title="This is a condition that requires a cross chain action to take place before the data can be accessed">
+                      <InfoCircleOutlined className="info-icon" />
+                    </Tooltip>
+                  </span>
 
 
-                  <h4>Enter cross-chain condition to unlock the data</h4>
-                  <br />
-                  A transaction from&nbsp;
-                  <Input
-                    style={{ width: 400 }}
-                    placeholder="Enter address"
-                    value={data.crossChainAddress}
-                    onChange={(e) => updateData("crossChainAddress", e.target.value)} />
-                  <br />
-                  on chain&nbsp;
+                  {data.hasCrossChainCondition && <div>
+                    <br />
 
-                  <Select
-                    style={{ width: 200 }}
-                    value={data.crossChainId || CHAIN_OPTIONS[0].id}
-                    onChange={(value) => updateData("crossChainId", value)}
-                  >
-                    {CHAIN_OPTIONS.map((c) => (
-                      <Select.Option value={c.id}>{c.name}</Select.Option>
-                    ))}
 
-                  </Select>
-                  &nbsp;to the deployed DataContract.
-                  <br />
-                  <br />
-                  <p>By default, destination contracts are deployed on {activeChain.name}. To satisfy this requirement, the target address would need to send a message from any&nbsp;
-                    <b>{CHAIN_OPTIONS.find(c => c.id === data.crossChainId)?.name}</b> DataContract to the created deployed contract address on <b>{activeChain.name}</b>.</p>
+                    <h4>Enter cross-chain condition to unlock the data</h4>
+                    <br />
+                    A transaction from&nbsp;
+                    <Input
+                      style={{ width: 400 }}
+                      placeholder="Enter address"
+                      value={data.crossChainAddress}
+                      onChange={(e) => updateData("crossChainAddress", e.target.value)} />
+                    <br />
+                    on chain&nbsp;
+
+                    <Select
+                      style={{ width: 200 }}
+                      value={data.crossChainId || CHAIN_OPTIONS[0].id}
+                      onChange={(value) => updateData("crossChainId", value)}
+                    >
+                      {CHAIN_OPTIONS.map((c) => (
+                        <Select.Option value={c.id}>{c.name}</Select.Option>
+                      ))}
+
+                    </Select>
+                    &nbsp;to the deployed DataContract.
+                    <br />
+                    <br />
+                    <p>By default, destination contracts are deployed on {activeChain.name}. To satisfy this requirement, the target address would need to send a message from any&nbsp;
+                      <b>{CHAIN_MAP[activeChain.id]?.name}</b> DataContract to this created deployed contract address on <b>{activeChain.name}</b>.</p>
+                  </div>}
 
                 </div>}
 

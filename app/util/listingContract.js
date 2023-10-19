@@ -17,6 +17,32 @@ export async function deployContract(signer, cid, assertion, name, description, 
     return contract;
 }
 
+export const assertTruth = async (signer, contractAddress) => {
+    const contract = new ethers.Contract(
+        contractAddress,
+        DATA_CONTRACT.abi,
+        signer
+    );
+    const tx = await contract.assertTruth();
+    await tx.wait();
+    console.log("assert truth tx...", tx);
+    const result = await contract.assertTruth.call();
+    return { assertTruth: result };
+}
+
+export const settleAndGetAssertionResult = async (signer, contractAddress) => {
+    const contract = new ethers.Contract(
+        contractAddress,
+        DATA_CONTRACT.abi,
+        signer
+    );
+    const tx = await contract.settleAndGetAssertionResult();
+    await tx.wait();
+    console.log("settleAndGetAssertionResult tx...", tx);
+    const result = await contract.settleAndGetAssertionResult.call();
+    return { settleAndGetAssertionResult: result };
+}
+
 export async function requestAccess(signer, contractAddress) {
     // Deploy contract with ethers
     const contract = new ethers.Contract(
@@ -39,13 +65,16 @@ export const getMetadata = async (signer, address) => {
         signer
     );
     const result = await contract.getMetadata.call();
+    console.log('result', result)
     return {
         name: result[0],
         description: result[1],
         cid: result[2],
         assertion: result[3],
-        owner: result[4],
-        active: result[5],
-        totalAccess: result[6].toNumber(),
+        crossChainAddress: result[4],
+        crossChainId: result[5].toNumber(),
+        owner: result[6],
+        active: result[7],
+        totalAccess: result[8].toNumber(),
     };
 }

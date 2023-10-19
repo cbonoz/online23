@@ -13,22 +13,6 @@ function makeStorageClient() {
   return new Web3Storage({ token: getAccessToken() });
 }
 
-import { create } from 'ipfs-http-client';
-import { IPFS_BASE_URL } from '../constants';
-
-export async function getLinks(ipfsPath) {
-  const url = IPFS_BASE_URL
-  const ipfs = create({ url });
-
-  const links = [];
-  for await (const link of ipfs.ls(ipfsPath)) {
-    links.push(link);
-  }
-  console.log('links', links);
-  return links;
-}
-
-
 export async function uploadFiles(files, metadata, accessControlConditions) {
   // Encrypt the file bytes data
   const file = files[0];
