@@ -30,13 +30,7 @@ export default function About() {
             </p>
 
             <p>
-                Files served from {APP_NAME} are verified and secured with Filecoin Saturn.
-            </p>
-
-            <p>
-                Follow the guide here to unpack your retrieved content:<br/>
-                <a href="web3.storage/docs/how-tos/work-with-car-files/" target="_blank">
-                https://web3.storage/docs/how-tos/work-with-car-files/</a>
+                {/* Files served from {APP_NAME} are verified and secured with Filecoin Saturn. */}
             </p>
 
             <p>
@@ -44,7 +38,7 @@ export default function About() {
                 {/* Create upload */}
                 <Button type="primary" onClick={() => {
                     router.push('/create')
-                }}>Create secure data upload</Button>&nbsp;
+                }}>Create new data upload</Button>&nbsp;
 
 
             </p>

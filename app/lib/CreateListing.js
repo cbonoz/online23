@@ -21,7 +21,7 @@ function CreateListing() {
   const { chain } = useNetwork()
 
   const signer = useEthersSigner({ chainId: chain?.id })
-  const activeChain = CHAIN_OPTIONS[chain?.id] || ACTIVE_CHAIN
+  const activeChain = CHAIN_MAP[chain?.id] || ACTIVE_CHAIN
   //   useEffect(() => {
   //     const networkId = network?.chain?.id
   //     console.log('network', network)
@@ -104,15 +104,18 @@ function CreateListing() {
       const activeChainId = activeChain.id
       const umaOracleAdress = UMA_ORACLE_MAP[activeChainId]
       const wormholeAddress = WORMHOLE_RELAYER_MAP[activeChainId]
-      const assertion = data.assertion || ''
-      contract = await deployContract(signer, cid, assertion, data.name, data.description, wormholeAddress, umaOracleAdress);
+      const assertion = data.hasAssertion ? data.assertion : ''
+      const crossChainAddress = data.hasCrossChainCondition ? data.crossChainAddress : address;
+      const crossChainId = data.hasCrossChainCondition ? data.crossChainId : 0;
+      contract = await deployContract(signer, cid, assertion, data.name, data.description, 
+        crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress);
       // contract = {
       //   address: '0x1234'
       // }
       res["cid"] = cid;
       res["contract"] = contract.address;
       res["uploadUrl"] = uploadUrl(contract.address || cid);
-      res["contractUrl"] = getExplorerUrl(chain, contract.address);
+      res["contractUrl"] = getExplorerUrl(activeChain, contract.address);
 
       // 3) create table entry
       const upload = { ...data } // TODO: set all fields.

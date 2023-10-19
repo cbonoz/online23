@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { DATA_CONTRACT } from "./metadata";
 
-export async function deployContract(signer, cid, assertion, name, description, wormholeAddress, umaOracleAdress) {
+export async function deployContract(signer, cid, assertion, name, description, crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress) {
     // Deploy contract with ethers
     const factory = new ethers.ContractFactory(
         DATA_CONTRACT.abi,
@@ -9,9 +9,9 @@ export async function deployContract(signer, cid, assertion, name, description, 
         signer
     );
 
-    const contract = await factory.deploy(cid, assertion, name, description, wormholeAddress, umaOracleAdress);
+    const contract = await factory.deploy(cid, assertion, name, description, crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress);
     // log
-    console.log("Deploying contract...", cid, assertion, wormholeAddress, umaOracleAdress);
+    console.log("Deploying contract...", cid, assertion, name, description, crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress);
     await contract.deployed();
     console.log("deployed contract...", contract.address);
     return contract;

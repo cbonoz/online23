@@ -66,8 +66,8 @@ export const EXAMPLE_ITEM = {
     "hasCrossChainCondition": true
 }
 
-// export const IPFS_BASE_URL = 'https://ipfs.filebase.io/ipfs'
+export const IPFS_BASE_URL = 'https://ipfs.io/ipfs'
 // export const IPFS_BASE_URL = 'https://gateway.pinata.cloud/ipfs'
-export const IPFS_BASE_URL = 'https://saturn.ms/ipfs'
+// export const IPFS_BASE_URL = 'https://saturn.ms/ipfs'
 
 export const ADMIN_ADDRESS = process.env.NEXT_PUBLIC_ADMIN_ADDRESS

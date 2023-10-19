@@ -69,6 +69,8 @@ contract DataContract is IWormholeReceiver {
         string memory _assertion,
         string memory _name,
         string memory _description,
+        address _crossChainAddress,
+        uint256 _crossChainId,
         address _wormholeRelayer,
         address _umaAddress
     ) {
@@ -79,6 +81,8 @@ contract DataContract is IWormholeReceiver {
         assertion = _assertion;
         assertedClaim = bytes(_assertion);
         umaAddress = _umaAddress;
+        crossChainAddress = _crossChainAddress;
+        crossChainId = _crossChainId;
         cid = _cid;
         active = true;
         crossChainSet = false;
