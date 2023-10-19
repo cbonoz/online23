@@ -3,8 +3,8 @@ pragma solidity ^0.8.16;
 // SPDX-License-Identifier: MIT
 import "@wormhole-solidity-sdk/src/interfaces/IWormholeRelayer.sol";
 import "@wormhole-solidity-sdk/src/interfaces/IWormholeReceiver.sol";
-
-// import "@uma/core/contracts/optimistic-oracle-v3/interfaces/OptimisticOracleV3Interface.sol";
+// https://github.com/UMAprotocol/protocol/tree/master/packages/core
+import "@uma/core/contracts/optimistic-oracle-v3/interfaces/OptimisticOracleV3Interface.sol";
 
 // https://github.com/wormhole-foundation/wormhole-solidity-sdk
 // https://remix.ethereum.org/#activate=solidity,fileManager&version=soljson-v0.8.16+commit.07a7930e.js&optimize=false&runs=200&gist=17a8a29b2f8ae432e8bac0b88cff8bb1&call=fileManager//open//gist-17a8a29b2f8ae432e8bac0b88cff8bb1/OOV3_GettingStarted.sol&lang=en&evmVersion=null
@@ -25,8 +25,9 @@ contract DataContract is IWormholeReceiver {
     string private description;
 
     mapping(bytes32 => bool) public seenDeliveryVaaHashes;
-    mapping(address => bool) public seenMessages;
-    // OptimisticOracleV3Interface oov3 = OptimisticOracleV3Interface(0x9923D42eF695B5dd9911D05Ac944d4cAca3c4EAB);
+
+    OptimisticOracleV3Interface oov3 =
+        OptimisticOracleV3Interface(0x9923D42eF695B5dd9911D05Ac944d4cAca3c4EAB);
 
     // Asserted claim. This is some truth statement about the world and can be verified by the network of disputers.
     // bytes public assertedClaim = bytes("Argentina won the 2022 Fifa world cup in Qatar");
@@ -39,29 +40,28 @@ contract DataContract is IWormholeReceiver {
 
     bool private crossChainSet;
 
+    function assertTruth() public {
+        assertionId = oov3.assertTruthWithDefaults(
+            assertedClaim,
+            address(this)
+        );
+    }
 
-    // function assertTruth() public {
-    //     assertionId = oov3.assertTruthWithDefaults(
-    //         assertedClaim,
-    //         address(this)
-    //     );
-    // }
+    function settleAndGetAssertionResult() public returns (bool) {
+        return oov3.settleAndGetAssertionResult(assertionId);
+    }
 
-    // function settleAndGetAssertionResult() public returns (bool) {
-    //     return oov3.settleAndGetAssertionResult(assertionId);
-    // }
+    function getAssertionResult() public view returns (bool) {
+        return oov3.getAssertionResult(assertionId);
+    }
 
-    // function getAssertionResult() public view returns (bool) {
-    //     return oov3.getAssertionResult(assertionId);
-    // }
-
-    // function getAssertion()
-    //     public
-    //     view
-    //     returns (OptimisticOracleV3Interface.Assertion memory)
-    // {
-    //     return oov3.getAssertion(assertionId);
-    // }
+    function getAssertion()
+        public
+        view
+        returns (OptimisticOracleV3Interface.Assertion memory)
+    {
+        return oov3.getAssertion(assertionId);
+    }
 
     mapping(address => bool) public hasAccess;
 
@@ -87,19 +87,31 @@ contract DataContract is IWormholeReceiver {
     }
 
     event AccessEvent(address indexed _buyer);
-    event MessageReceived(string message, uint16 sourceChain, address sender);
+    event MessageReceived(
+        string message,
+        uint16 sourceChain,
+        address sender,
+        bool crossChainSet
+    );
 
     function requestAccess() public payable returns (string memory) {
         require(active, "Contract was marked inactive by creator");
 
         // Check assertion if assertionClaim is nonempty
         if (assertedClaim.length != 0) {
+            // https://docs.uma.xyz/developers/quick-start#settling-the-assertion
+            require(
+                getAssertionResult(),
+                "Assertion is not true, cannot access data. Call assertTruth and settleAndGetAssertionResult to verify."
+            );
         }
-
 
         // Check cross chain transaction has been set if chainId is nonzero
         if (crossChainChainId != 0) {
-            require(crossChainSet, "Cross chain transaction requirement not met");
+            require(
+                crossChainSet,
+                "Cross chain transaction requirement not met"
+            );
         }
 
         if (!hasAccess[msg.sender]) {
@@ -169,7 +181,6 @@ contract DataContract is IWormholeReceiver {
         );
     }
 
-
     function receiveWormholeMessages(
         bytes memory payload,
         bytes[] memory, // additionalVaas
@@ -191,6 +202,12 @@ contract DataContract is IWormholeReceiver {
             payload,
             (string, address)
         );
-        emit MessageReceived(message, sourceChain, sender);
+
+        // See if address and source match cross chain condition.
+        if (crossChainAddress == sender && crossChainChainId == sourceChain) {
+            crossChainSet = true;
+        }
+
+        emit MessageReceived(message, sourceChain, sender, crossChainSet);
     }
 }

@@ -4,6 +4,7 @@
     "build": "forge build"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.3"
+    "@openzeppelin/contracts": "^4.9.3",
+    "@uma/core": "^2.56.1"
   }
 }

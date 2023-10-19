@@ -48,7 +48,11 @@ export const EXAMPLE_ITEM = {
     "id": 1,
     "name": "Oil price data set",
     "description": "The data contains Weekly crude oil prices from 5/1987 to 9/2023",
-    "assertion": "Did the Philadelphia eagles win the super bowl in 2022?",
+    "assertion": "The Philadelphia eagles won the super bowl in 2022",
+    "crossChainId": CHAIN_OPTIONS[1].id,
+    "crossChainAddress": "0xf4982D4aC99d25d89Cc8993a88Dc643832B1515b",
+    "hasAssertion": true,
+    "hasCrossChainCondition": true
 }
 
 // export const IPFS_BASE_URL = 'https://ipfs.filebase.io/ipfs'

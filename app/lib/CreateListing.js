@@ -21,6 +21,7 @@ function CreateListing() {
   const { chain } = useNetwork()
 
   const signer = useEthersSigner({ chainId: chain?.id })
+  const activeChain = CHAIN_OPTIONS[chain?.id] || ACTIVE_CHAIN
 
   //   useEffect(() => {
   //     const networkId = network?.chain?.id
@@ -30,7 +31,7 @@ function CreateListing() {
   //     }
   //   }, [network, account])
 
-  const [data, setData] = useState({});
+  const [data, setData] = useState({})
   const [error, setError] = useState();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState();
@@ -66,7 +67,7 @@ function CreateListing() {
     }
 
     if (!signer) {
-      setError(`Please connect a valid ${ACTIVE_CHAIN.name} wallet`);
+      setError(`Please connect a valid ${activeChain.name} wallet`);
       return;
     }
 
@@ -101,7 +102,7 @@ function CreateListing() {
 
       // 2) deploy contract with initial metadata
       let contract;
-      const activeChainId = chain?.id || ACTIVE_CHAIN.id
+      const activeChainId = activeChain.id
       const umaOracleAdress = UMA_ORACLE_MAP[activeChainId]
       const wormholeAddress = WORMHOLE_RELAYER_MAP[activeChainId]
       const assertion = data.assertion || ''
@@ -249,15 +250,15 @@ function CreateListing() {
                   <br />
                   A transaction from&nbsp;
                   <Input
-                  style={{ width: 400 }}
+                    style={{ width: 400 }}
                     placeholder="Enter address"
-                    value={data.crossChainConditionAddress}
+                    value={data.crossChainAddress}
                     onChange={(e) => updateData("crossChainAddress", e.target.value)} />
                   <br />
                   on chain&nbsp;
 
                   <Select
-                  style={{ width: 200 }}
+                    style={{ width: 200 }}
                     value={data.crossChainId || CHAIN_OPTIONS[0].id}
                     onChange={(value) => updateData("crossChainId", value)}
                   >
@@ -266,8 +267,11 @@ function CreateListing() {
                     ))}
 
                   </Select>
-                  &nbsp;to the deployed ChainGuard contract.
-
+                  &nbsp;to the deployed DataContract.
+                  <br />
+                  <br />
+                  <p>By default, destination contracts are deployed on {activeChain.name}. To satisfy this requirement, the target address would need to send a message from any&nbsp;
+                    <b>{CHAIN_OPTIONS.find(c => c.id === data.crossChainId)?.name}</b> DataContract to the created deployed contract address on <b>{activeChain.name}</b>.</p>
 
                 </div>}
 
@@ -378,7 +382,7 @@ function CreateListing() {
                 description: 'Upload data and specify access conditions.'
               }, {
                 title: `Create ${APP_NAME} upload`,
-                description: 'Deploys a smart contract and creates an access page for the dataset'
+                description: <span>Deploys a <a href="https://github.com/cbonoz/online23/blob/master/contracts/contracts/DataContract.sol" target="_blank">DataContract</a> smart contract and creates an access page for the dataset</span>,
               }, {
                 title: 'Share the generated access url for your data',
               }]}
