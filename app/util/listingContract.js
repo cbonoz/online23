@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { DATA_CONTRACT } from "./metadata";
 
-export async function deployContract(signer, cid, assertion, name, description, crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress) {
+export async function deployContract(signer, cid, assertion, name, description, crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress, sismoGroup) {
     // Deploy contract with ethers
     const factory = new ethers.ContractFactory(
         DATA_CONTRACT.abi,
@@ -9,12 +9,41 @@ export async function deployContract(signer, cid, assertion, name, description, 
         signer
     );
 
-    const contract = await factory.deploy(cid, assertion, name, description, crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress);
+    const contract = await factory.deploy(cid, assertion, name, description, crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress, sismoGroup);
     // log
-    console.log("Deploying contract...", cid, assertion, name, description, crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress);
+    console.log("Deploying contract...", cid, assertion, name, description, crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress, sismoGroup);
+
     await contract.deployed();
     console.log("deployed contract...", contract.address);
     return contract;
+}
+
+export const verifySismoConnectResponse = async (signer, contractAddress, response) => {
+    const contract = new ethers.Contract(
+        contractAddress,
+        DATA_CONTRACT.abi,
+        signer
+    );
+    console.log('verify', response)
+    const tx = await contract.verifySismoConnectResponse(response);
+    await tx.wait();
+    console.log("verifySismoConnectResponse tx...", tx);
+    const result = await contract.verifySismoConnectResponse.call(response);
+
+    return { verifySismoConnectResponse: result };
+}
+
+export const addAllowedAddress = async (signer, contractAddress, address) => {
+    const contract = new ethers.Contract(
+        contractAddress,
+        DATA_CONTRACT.abi,
+        signer
+    );
+    const tx = await contract.addAllowedAddress(address);
+    await tx.wait();
+    console.log("addAllowedAddress tx...", tx);
+    const result = await contract.addAllowedAddress.call(address);
+    return { addAllowedAddress: address };
 }
 
 export const assertTruth = async (signer, contractAddress) => {
@@ -40,6 +69,7 @@ export const settleAndGetAssertionResult = async (signer, contractAddress) => {
     await tx.wait();
     console.log("settleAndGetAssertionResult tx...", tx);
     const result = await contract.settleAndGetAssertionResult.call();
+    console.log('settle result', result)
     return { settleAndGetAssertionResult: result };
 }
 
@@ -76,5 +106,12 @@ export const getMetadata = async (signer, address) => {
         owner: result[6],
         active: result[7],
         totalAccess: result[8].toNumber(),
+        sismoGroup: result[9],
+        conditions: {
+            assertion: result[10][0],
+            crossChain: result[10][1],
+            allowedAddress: result[10][2],
+            sismo: result[10][3],
+        }
     };
 }

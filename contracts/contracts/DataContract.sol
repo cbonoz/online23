@@ -1,15 +1,17 @@
-pragma solidity ^0.8.16;
+pragma solidity ^0.8.17;
 // License
 // SPDX-License-Identifier: MIT
 import "@wormhole-solidity-sdk/src/interfaces/IWormholeRelayer.sol";
 import "@wormhole-solidity-sdk/src/interfaces/IWormholeReceiver.sol";
 // https://github.com/UMAprotocol/protocol/tree/master/packages/core
 import "@uma/core/contracts/optimistic-oracle-v3/interfaces/OptimisticOracleV3Interface.sol";
+import "@sismo-connect-solidity/src/SismoConnectLib.sol";
+// buildConfig
 
 // https://github.com/wormhole-foundation/wormhole-solidity-sdk
 // https://remix.ethereum.org/#activate=solidity,fileManager&version=soljson-v0.8.16+commit.07a7930e.js&optimize=false&runs=200&gist=17a8a29b2f8ae432e8bac0b88cff8bb1&call=fileManager//open//gist-17a8a29b2f8ae432e8bac0b88cff8bb1/OOV3_GettingStarted.sol&lang=en&evmVersion=null
 // https://github.com/UMAprotocol/protocol/blob/master/packages/core/networks/80001.json
-contract DataContract is IWormholeReceiver {
+contract DataContract is IWormholeReceiver, SismoConnect {
     address public deployer; // deployer/owner of the contract
     string private cid; // either encrypted cid or customer encrypts data for security.
     bool public active; // if false, contract is inactive and no one can request access.
@@ -17,9 +19,6 @@ contract DataContract is IWormholeReceiver {
 
     IWormholeRelayer public immutable wormholeRelayer;
     uint256 constant GAS_LIMIT = 50_000;
-    string public latestmessage;
-
-    address public umaAddress;
 
     string private name;
     string private description;
@@ -27,17 +26,25 @@ contract DataContract is IWormholeReceiver {
     mapping(bytes32 => bool) public seenDeliveryVaaHashes;
 
     OptimisticOracleV3Interface public oov3;
+    address public umaAddress;
     // Asserted claim. This is some truth statement about the world and can be verified by the network of disputers.
-    // bytes public assertedClaim = bytes("Argentina won the 2022 Fifa world cup in Qatar");
     string private assertion;
-    string private allowedAddresses;
+    // ex: bytes public assertedClaim = bytes("Argentina won the 2022 Fifa world cup in Qatar");
     bytes private assertedClaim;
     bytes32 public assertionId;
+    bool private assertionSuccess = false;
 
+    // cross chain transaction
     address public crossChainAddress;
     uint256 public crossChainId;
+    bool private crossChainSet = false;
 
-    bool private crossChainSet;
+    // sismo auth
+    mapping(address => bool) public sismoVerified;
+    bytes16 private sismoGroupId;
+
+    // allowed address map
+    mapping(address => bool) public allowedAddresses;
 
     function assertTruth() public {
         assertionId = oov3.assertTruthWithDefaults(
@@ -48,6 +55,7 @@ contract DataContract is IWormholeReceiver {
 
     function settleAndGetAssertionResult() public returns (bool) {
         return oov3.settleAndGetAssertionResult(assertionId);
+        // return assertionSuccess;
     }
 
     function getAssertionResult() public view returns (bool) {
@@ -62,6 +70,10 @@ contract DataContract is IWormholeReceiver {
         return oov3.getAssertion(assertionId);
     }
 
+    bool private hasAllowedAddress = false;
+    bytes16 private sismoAppId = 0xe2c8c9656f21297f674d82d714db2ce2;
+
+    // general access
     mapping(address => bool) public hasAccess;
 
     constructor(
@@ -72,8 +84,11 @@ contract DataContract is IWormholeReceiver {
         address _crossChainAddress,
         uint256 _crossChainId,
         address _wormholeRelayer,
-        address _umaAddress
-    ) {
+        address _umaAddress,
+        bytes16 _sismoGroupId
+    )
+        SismoConnect(buildConfig(sismoAppId, true))
+    {
         wormholeRelayer = IWormholeRelayer(_wormholeRelayer);
         deployer = msg.sender;
         name = _name;
@@ -87,8 +102,9 @@ contract DataContract is IWormholeReceiver {
         active = true;
         crossChainSet = false;
         totalAccess = 0;
-       oov3  =
-        OptimisticOracleV3Interface(_umaAddress);
+        oov3 = OptimisticOracleV3Interface(_umaAddress);
+        // sismoGroupId = 0x1cde61966decb8600dfd0749bd371f12;
+        sismoGroupId = _sismoGroupId;
     }
 
     event AccessEvent(address indexed _buyer);
@@ -99,8 +115,50 @@ contract DataContract is IWormholeReceiver {
         bool crossChainSet
     );
 
+
+    struct ConditionResult {
+        bool assertSuccess;
+        bool crossChainSet;
+        bool allowedAddress;
+        bool sismoVerified;
+    }
+
+    function addAllowedAddress(address _address) public {
+        require(msg.sender == deployer);
+        allowedAddresses[_address] = true;
+        hasAllowedAddress = true;
+    }
+
+    // https://docs.sismo.io/sismo-docs/build-with-sismo-connect/getting-started-1
+    function verifySismoConnectResponse(bytes memory response) public {
+        ClaimRequest[] memory claims = new ClaimRequest[](1);
+        claims[0] = buildClaim({groupId: sismoGroupId});
+        // verify the response regarding our original request
+        // otherwise throws error
+        SismoConnectVerifiedResult memory result = verify({
+            responseBytes: response,
+            claims: claims
+        });
+        sismoVerified[msg.sender] = true;
+    }
+
     function requestAccess() public payable returns (string memory) {
         require(active, "Contract was marked inactive by creator");
+
+        // check if bytes16 is null
+        if (sismoGroupId != 0x00) {
+            require(
+                sismoVerified[msg.sender],
+                "Address not verified by Sismo: Please call verifySismoConnectResponse successfully with your account"
+            );
+        }
+
+        if (hasAllowedAddress) {
+            require(
+                allowedAddresses[msg.sender],
+                "Address not allowed to access data"
+            );
+        }
 
         // Check assertion if assertionClaim is nonempty
         if (assertedClaim.length != 0) {
@@ -139,9 +197,18 @@ contract DataContract is IWormholeReceiver {
             uint256,
             address,
             bool,
-            uint256
+            uint256,
+            bytes16,
+            ConditionResult memory
         )
     {
+
+        ConditionResult memory conditionResult =  ConditionResult(
+            assertionSuccess,
+            crossChainSet,
+            hasAllowedAddress ? allowedAddresses[msg.sender] : true,
+            sismoVerified[msg.sender]
+        );
         return (
             name,
             description,
@@ -151,7 +218,9 @@ contract DataContract is IWormholeReceiver {
             crossChainId,
             deployer,
             active,
-            totalAccess
+            totalAccess,
+            sismoGroupId,
+            conditionResult
         );
     }
 

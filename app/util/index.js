@@ -16,7 +16,7 @@ export const formatDate = (d) => {
 }
 
 export const isAdminAddress = (address) => {
-  return ADMIN_ADDRESS === address;
+  return ADMIN_ADDRESS && ADMIN_ADDRESS === address;
 }
 
 export const formatCurrency = (amount, symbol) => {
@@ -87,7 +87,7 @@ export const getRpcError = (error) => {
   } else if (error?.message) {
     return error.message;
   }
-  return JSON.stringify(error);
+  return error;
 };
 
 export const humanError = message => {
@@ -104,17 +104,4 @@ export function bytesToSize(bytes) {
   if (bytes == 0) return "0 Byte";
   var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
   return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
-}
-
-export const formatUpload = (upload) => {
-  if (!upload) return {}
-  return {
-    ...upload,
-    // shortAddress: abbreviate(upload.address),
-    created_by: abbreviate(upload.created_by),
-    created_at: formatDate(upload.created_at),
-    price: formatCurrency(ethers.utils.formatEther(upload.price + ""), ACTIVE_CHAIN.symbol),
-    verified: upload.verified ? 'Verified' : 'Unverified',
-
-  }
 }

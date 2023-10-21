@@ -9,9 +9,9 @@ import { useRouter } from 'next/navigation';
 
 // TODO: change
 const CHECKLIST_ITEMS = [
-  "Conditionally secured data sets using natural language and cross-chain conditions",
+  "Host encrypted data sets using natural language and cross-chain conditions",
   "Unlock data when cross-chain conditions are met",
-  "No user accounts or vendor agreements required."
+  "No user accounts or vendor agreements required"
 ];
 
 const HERO_IMAGE = 'https://assets-v2.lottiefiles.com/a/b2e71c48-1173-11ee-af24-e38df89b1a8a/esieSHm0ao.gif'
@@ -35,7 +35,7 @@ const Home = () => {
             <p key={i}>
               <CheckCircleTwoTone twoToneColor="#00aa00" />
               &nbsp;
-              {item}
+              {item}.
             </p>
           );
         })}

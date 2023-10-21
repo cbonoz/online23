@@ -9,8 +9,6 @@ import { Card, Divider } from "antd";
 
 
 export default function About() {
-    const [loading, setLoading] = useState(false)
-    const [result, setResult] = useState()
 
     const router = useRouter()
     return (
@@ -23,17 +21,20 @@ export default function About() {
                 {APP_NAME} | {APP_DESC}
             </p>
 
+
+            <p>
+            Traditional encryption is fairly basic i.e. are you the holder of this key, do you have access to this data.
+            </p>
+            <p>
+                With ChainGuard you can define much more rich criteria and triggers to share encrypted data, such as any natural language statement in combination with cross chain criteria to unlock a piece of data for the end user.
+            </p>
+
             {/* github */}
             <p>
                 {APP_NAME} is an open source project. You can find the code on GitHub&nbsp;
                 <a href="https://github.com/cbonoz/online23" target="_blank">here</a>.
             </p>
-
-            <p>
-                {/* Files served from {APP_NAME} are verified and secured with Filecoin Saturn. */}
-            </p>
-
-            <p>
+            <div>
 
                 {/* Create upload */}
                 <Button type="primary" onClick={() => {
@@ -41,7 +42,7 @@ export default function About() {
                 }}>Create new data upload</Button>&nbsp;
 
 
-            </p>
+            </div>
 
         </div>
     )

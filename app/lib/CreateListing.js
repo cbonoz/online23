@@ -2,19 +2,18 @@
 
 import React, { useEffect, useState } from "react";
 import { Button, Input, Row, Col, Steps, Result, Divider, Checkbox, Card, Image, Tooltip, Select, Switch } from "antd";
-import { uploadUrl, ipfsUrl, getExplorerUrl, humanError, isEmpty, } from "../util";
+import { uploadUrl, ipfsUrl, getExplorerUrl, humanError, isEmpty, getRpcError, } from "../util";
 import { uploadFiles } from "../util/stor";
 import TextArea from "antd/lib/input/TextArea";
+import { ethers } from "ethers";
 import { EXAMPLE_ITEM, UMA_ORACLE_MAP, ACTIVE_CHAIN, APP_NAME, WORMHOLE_RELAYER_MAP, DEFAULT_ACCESS_CONDITIONS, CHAIN_OPTIONS, CHAIN_MAP } from "../constants";
 import { FileDrop } from "./FileDrop";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { deployContract } from "../util/listingContract";
+import { addAllowedAddress, deployContract } from "../util/listingContract";
 import { useAccount, useNetwork } from "wagmi";
 import ConnectButton from "./ConnectButton";
 import { useEthersSigner } from '../hooks/useEthersSigner'
 import { polygonMumbai } from "viem/chains";
-
-const { Step } = Steps;
 
 function CreateListing() {
   const { address } = useAccount()
@@ -102,13 +101,17 @@ function CreateListing() {
       // 2) deploy contract with initial metadata
       let contract;
       const activeChainId = activeChain.id
-      const umaOracleAdress = UMA_ORACLE_MAP[activeChainId]
-      const wormholeAddress = WORMHOLE_RELAYER_MAP[activeChainId]
-      const assertion = data.hasAssertion ? data.assertion : ''
-      const crossChainAddress = data.hasCrossChainCondition ? data.crossChainAddress : address;
-      const crossChainId = data.hasCrossChainCondition ? data.crossChainId : 0;
-      contract = await deployContract(signer, cid, assertion, data.name, data.description, 
-        crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress);
+      const umaOracleAdress = UMA_ORACLE_MAP[activeChainId] || ethers.constants.AddressZero
+      const wormholeAddress = WORMHOLE_RELAYER_MAP[activeChainId] || ethers.constants.AddressZero
+      const assertion = (UMA_ORACLE_MAP[activeChain.id] && data.hasAssertion) ? data.assertion : ''
+      const supportsCrossChain = WORMHOLE_RELAYER_MAP[activeChain.id] && data.hasCrossChainCondition
+      const crossChainAddress = supportsCrossChain ? data.crossChainAddress : ethers.constants.AddressZero;
+      const crossChainId = supportsCrossChain ? data.crossChainId : 0;
+
+      const sismoGroup = ethers.utils.hexlify(data.hasSismo ? data.sismoGroup : '0x00000000000000000000000000000000')
+
+      contract = await deployContract(signer, cid, assertion, data.name, data.description,
+        crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress, sismoGroup);
       // contract = {
       //   address: '0x1234'
       // }
@@ -121,6 +124,15 @@ function CreateListing() {
       const upload = { ...data } // TODO: set all fields.
       upload['address'] = contract.address;
 
+      if (data.hasAllowedAddress) {
+        try {
+          const allowedAddress = await addAllowedAddress(signer, contract.address, data.allowedAddress)
+          upload['allowedAddress'] = allowedAddress;
+        } catch (e) {
+          console.error('error adding allowed address', e)
+        }
+      }
+
       // tableland
       // try {
       //   const uploadResult = createUpload(provider.signer, upload)
@@ -132,8 +144,7 @@ function CreateListing() {
       setResult(res);
     } catch (e) {
       console.error("error creating chainguard request", e);
-      const message = e.reason || e.response?.message || e.message
-      setError(humanError(message))
+      setError(humanError(getRpcError(e)));
     } finally {
       setLoading(false)
     }
@@ -167,7 +178,7 @@ function CreateListing() {
 
           <div className="create-form white boxed">
             {!result && <>
-              <h3 className="vertical-margin">General Information:</h3>
+              <h2 className="vertical-margin">Upload Information</h2>
               <a href="#" onClick={e => {
                 e.preventDefault()
                 setDemo()
@@ -207,36 +218,33 @@ function CreateListing() {
 
               {/* <p>Enter a list of addresses that could potentially access the data</p> */}
 
-              <Card title="Enter access condition(s)">
+              <Card title="Add data access condition(s)">
 
                 <p>These conditions must be met for the data to be accessed and decrypted. Otherwise the data is shareable and public by default.</p>
-                {false && <div><Divider />
+
+                <div><Divider />
 
                   <Switch
-                    checked={data.hasAllowedAddresses}
-                    onChange={(e) => updateData("hasAllowedAddresses", e)}
-                  /> & nbsp;<span className="bold">Add allowed address&nbsp;
-                    <Tooltip className="pointer" title="Specify a list of addresses that can access the data.">
+                    checked={data.hasSismo}
+                    onChange={(e) => updateData("hasSismo", e)}
+                  />&nbsp;<span className="bold">Specify Sismo group&nbsp;
+                    <Tooltip className="pointer" title="Specify a Sismo group claim required for data access">
                       <InfoCircleOutlined className="info-icon" />
                     </Tooltip>
                   </span>
-                  <br /></div>}
-                {data.hasAllowedAddresses && <div>
-                  <br />
-                  {/* UMA assertion */}
-                  <h4>Enter allowed address&nbsp;
+                  {data.hasSismo && <div>
+                    <br />
+                    <h4>Enter Sismo group id (impersonate/test mode)</h4>
+                    <Input
+                      placeholder="Enter allowed address"
+                      value={data.sismoGroup}
+                      onChange={(e) => updateData("sismoGroup", e.target.value)} />
+                  </div>}
+                </div>
 
-                  </h4>
-                  <Input
-                    placeholder="Enter allowed address separated by a comma"
-                    value={data.allowedAddresses}
-                    onChange={(e) => updateData("allowedAddresses", e.target.value)} />
-                </div>}
+                {UMA_ORACLE_MAP[activeChain.id] && <div>
 
-                <Divider />
-
-                {activeChain.id === polygonMumbai.id && <div>
-
+                  <Divider />
                   <Switch
                     checked={data.hasAssertion}
                     onChange={(e) => updateData("hasAssertion", e)}
@@ -257,15 +265,17 @@ function CreateListing() {
                       value={data.assertion}
                       onChange={(e) => updateData("assertion", e.target.value)} />
                   </div>}
+                </div>}
 
-                  <Divider />
+                {WORMHOLE_RELAYER_MAP[activeChain.id] && <div> <Divider />
                   <Switch
                     checked={data.hasCrossChainCondition}
                     onChange={(e) => updateData("hasCrossChainCondition", e)}
                   />&nbsp;<span className="bold">Add cross-chain condition&nbsp;
-                    <Tooltip className="pointer" title="This is a condition that requires a cross chain action to take place before the data can be accessed">
+                    <Tooltip className="pointer" title="This is a condition that requires a cross chain action to take place before the data can be accessed.">
                       <InfoCircleOutlined className="info-icon" />
                     </Tooltip>
+
                   </span>
 
 
@@ -273,7 +283,7 @@ function CreateListing() {
                     <br />
 
 
-                    <h4>Enter cross-chain condition to unlock the data</h4>
+                    <h4>Enter cross-chain condition to unlock data</h4>
                     <br />
                     A transaction from&nbsp;
                     <Input
@@ -286,11 +296,11 @@ function CreateListing() {
 
                     <Select
                       style={{ width: 200 }}
-                      value={data.crossChainId || CHAIN_OPTIONS[0].id}
+                      value={data.crossChainId}
                       onChange={(value) => updateData("crossChainId", value)}
                     >
-                      {CHAIN_OPTIONS.map((c) => (
-                        <Select.Option value={c.id}>{c.name}</Select.Option>
+                      {Object.keys(WORMHOLE_RELAYER_MAP).map((chainId) => (
+                        <Select.Option value={chainId}>{CHAIN_MAP[chainId]?.name || ''}</Select.Option>
                       ))}
 
                     </Select>
@@ -299,7 +309,37 @@ function CreateListing() {
                     <br />
                     <p>By default, destination contracts are deployed on {activeChain.name}. To satisfy this requirement, the target address would need to send a message from any&nbsp;
                       <b>{CHAIN_MAP[activeChain.id]?.name}</b> DataContract to this created deployed contract address on <b>{activeChain.name}</b>.</p>
+                    <br />
+                    <p>Note: more options available on mainnet</p>
                   </div>}
+
+
+                  {false && <div><Divider />
+
+                    <Switch
+                      checked={data.hasAllowedAddress}
+                      onChange={(e) => updateData("hasAllowedAddress", e)}
+                    />&nbsp;<span className="bold">Add allowed address&nbsp;
+                      <Tooltip className="pointer" title="Specify a list of addresses that can access the data. If unset, other conditions will apply if any.">
+                        <InfoCircleOutlined className="info-icon" />
+                      </Tooltip>
+                    </span>
+                    <br />
+                  </div>}
+                  {data.hasAllowedAddress && <div>
+                    <br />
+                    {/* UMA assertion */}
+                    <h4>Enter allowed address&nbsp;
+
+                    </h4>
+                    <Input
+                      placeholder="Enter allowed address"
+                      value={data.allowedAddress}
+                      onChange={(e) => updateData("allowedAddress", e.target.value)} />
+                    <p>Note: This can also be done by calling addAllowedAddress on the contract later as the owner.</p>
+                  </div>}
+
+
 
                 </div>}
 
@@ -333,7 +373,7 @@ function CreateListing() {
                 </Card>
               </>}
               {!data.useCid && <>
-                <Card title="Upload secured file">
+                <Card title="Upload secured files">
 
                   {/* <h3 className="vertical-margin">Upload dataset(s) for purchaseable collection</h3> */}
                   <FileDrop
@@ -374,16 +414,19 @@ function CreateListing() {
             {error && <div className="error-text">Error: {error}</div>}
             {result && (<div>
               <Result status="success"
-                title="Upload created! Confirm last transaction to index the result" subTitle="Access your data page and content below. It may take a few minutes to confirm the upload on the network." />
+                title="Upload created! 🎉"
+                subTitle="Access your hosted encrypted data and shareable url below"
+                extra={[
+                  <a href={ipfsUrl(result.cid)} target="_blank">
+                    Download files
+                  </a>,
+                  <a href={result.contractUrl} target="_blank">
+                    View created contract
+                  </a>
+                ]}
+              />
               <div>
-                <a href={ipfsUrl(result.cid)} target="_blank">
-                  Download files
-                </a>
-                {/* (download secure <a href="https://spec.filecoin.io/systems/filecoin_files/piece/#:~:text=In%20order%20to%20make%20a,un%2DCAR'ed%20constructions." target="_blank">.car</a> format) */}
-                <br />
-                <a href={result.contractUrl} target="_blank">
-                  View created contract
-                </a>
+
                 <br />
                 <br />
                 <p>
@@ -397,7 +440,7 @@ function CreateListing() {
             </div>
             )}
           </div>
-        </Col>
+        </Col >
         <Col span={1}></Col>
         <Col span={7}>
           <div className="white boxed">
@@ -412,14 +455,15 @@ function CreateListing() {
                 title: `Create ${APP_NAME} upload`,
                 description: <span>Deploys a <a href="https://github.com/cbonoz/online23/blob/master/contracts/contracts/DataContract.sol" target="_blank">DataContract</a> smart contract and creates an access page for the dataset</span>,
               }, {
-                title: 'Share the generated access url for your data',
+                title: 'Share URL',
+                description: 'Share the generated access url for your data',
               }]}
               current={getStep()}
             >
             </Steps>
           </div>
         </Col>
-      </Row>
+      </Row >
     </div >
   );
 }

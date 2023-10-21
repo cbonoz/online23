@@ -12,13 +12,14 @@ import {
     Input,
 } from 'antd';
 import { getExplorerUrl, getRpcError, humanError, ipfsUrl, isEmpty, } from '../util';
-import { ACTIVE_CHAIN, APP_NAME, CHAIN_MAP, CHAIN_OPTIONS, } from '../constants';
+import { ACTIVE_CHAIN, APP_NAME, CHAIN_MAP, CHAIN_OPTIONS, ZIP_FILE_NAME, } from '../constants';
 import RenderObject from '../lib/RenderObject';
 
-import { assertTruth, getMetadata, requestAccess, settleAndGetAssertionResult } from '../util/listingContract';
+import { assertTruth, getMetadata, requestAccess, settleAndGetAssertionResult, verifySismoConnectResponse } from '../util/listingContract';
 import { useAccount, useNetwork } from 'wagmi';
 import { useEthersSigner } from '../hooks/useEthersSigner';
 import ConnectButton from './ConnectButton';
+import SismoButton from './SismoButton';
 
 
 const ListingDetail = ({ uploadId }) => {
@@ -27,6 +28,7 @@ const ListingDetail = ({ uploadId }) => {
     const [result, setResult] = useState()
     const [error, setError] = useState()
     const [data, setData] = useState()
+    const [responseBytes, setResponseBytes] = useState();
     console.log('upload', uploadId)
 
     const { address } = useAccount();
@@ -35,8 +37,8 @@ const ListingDetail = ({ uploadId }) => {
 
     const breadcrumbs = [
         {
-            title: 'Uploads',
-            href: '/search'
+            title: 'Home',
+            href: '/'
         },
         {
             title: data?.name,
@@ -44,10 +46,14 @@ const ListingDetail = ({ uploadId }) => {
         }
     ]
 
-    async function accessData() {
-        setRpcLoading(true)
+    function setRpcPending() {
         setError()
+        setRpcLoading(true)
         setResult()
+    }
+
+    async function accessData() {
+        setRpcPending()
         try {
             await requestAccess(signer, uploadId);
             console.log('request access', res)
@@ -62,14 +68,12 @@ const ListingDetail = ({ uploadId }) => {
     }
 
     async function assert() {
-        setError()
-        setRpcLoading(true)
-        setResult()
+        setRpcPending()
         try {
             const res = await assertTruth(signer, uploadId);
             console.log('assert', res)
             setResult({
-                'assertTruth': 'completed'
+                'assertTruth': 'Completed, please wait settle period'
             })
         } catch (e) {
             setError(getRpcError(e))
@@ -85,18 +89,18 @@ const ListingDetail = ({ uploadId }) => {
             return
         }
 
-        setError()
-        setRpcLoading(true)
-        setResult()
+        setRpcPending()
 
         const targetAddress = data.crossChainAddress
         const targetChain = data.crossChainId
         const message = 'Cross chain message from ' + APP_NAME
         let res
         try {
+            // TODO:
+            alert('Cross chain from app UI not yet implemented. Please use Remix or another RPC platform')
             // res = await sendCrossChainMessage(signer, uploadId, targetAddress, targetChain, message);
-            console.log('request access', res)
-            setResult(res)
+            // console.log('request access', res)
+            // setResult(res)
         } catch (e) {
             setError(getRpcError(e))
         } finally {
@@ -107,9 +111,7 @@ const ListingDetail = ({ uploadId }) => {
     }
 
     async function settle() {
-        setError()
-        setRpcLoading(true)
-        setResult()
+        setRpcPending()
         try {
             const res = await settleAndGetAssertionResult(signer, uploadId);
             console.log('settle', res)
@@ -161,7 +163,8 @@ const ListingDetail = ({ uploadId }) => {
 
     const hasAssertion = !isEmpty(data?.assertion)
     const hasCrossChain = !isEmpty(data?.crossChainId)
-    const hasCondition = hasAssertion || hasCrossChain;
+    const hasSismo = !isEmpty(data?.sismoGroup) && data?.sismoGroup != '0x00000000000000000000000000000000'
+    const hasCondition = hasAssertion || hasCrossChain || hasSismo;
 
     const crossChainName = CHAIN_MAP[data?.crossChainId]?.name
     const isCrossChainAddressCorrect = address === data?.crossChainAddress
@@ -170,10 +173,53 @@ const ListingDetail = ({ uploadId }) => {
         return <Card title="Listing details">
             <p className='bold'>Connect your wallet to view upload page.</p>
             <br />
-            <ConnectButton />
+            <ConnectButton connectOnMount />
 
         </Card>
     }
+
+    async function downloadZipFileFromCid(cid) {
+        console.log('downloadZipFileFromCid', cid)
+        const zipFileUrl = ipfsUrl(cid, ZIP_FILE_NAME)
+        const res = await fetch(zipFileUrl)
+        const blob = await res.blob()
+        const fileName = cid + '.zip'
+        const file = new File([blob], fileName, { type: 'application/zip' })
+        const url = URL.createObjectURL(file)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = fileName
+        a.click()
+    }
+
+    async function onResponse(bytes) {
+        console.log('onResponseBytes', bytes)
+        setResponseBytes(bytes)
+    }
+
+    async function verifySismo() {
+        setRpcPending()
+        try {
+            await verifySismoConnectResponse(signer, uploadId, responseBytes)
+            await getMetadata(signer, uploadId)
+        } catch (e) {
+            console.error('verifySismo', e)
+            setError(getRpcError(e))
+        } finally {
+            setRpcLoading(false)
+        }
+    }
+
+    const { assertSuccess, crossChain, sismo } = data?.conditions || {}
+
+    function RenderCondition({ isTrue, children }) {
+        return <span className={isTrue ? 'success-text' : ''}>
+            {children}
+            {isTrue && <span>&nbsp;✅</span>}
+        </span>
+    }
+
+    const conditionsMet = data?.cid
 
     return (
         <div className="upload-detail-page">
@@ -200,56 +246,79 @@ const ListingDetail = ({ uploadId }) => {
                         </h3>
 
                             <br />
-                            {hasAssertion && <li>1. Assertion must be true on contract: <b>{data.assertion}</b></li>}
-                            {hasCrossChain && <li>2. A cross chain <b>transaction from {data.crossChainAddress} on {crossChainName}</b> to this contract</li>}
+                            <ol style={{ paddingLeft: '16px' }}>
+                                {hasAssertion && <li><RenderCondition isTrue={assertSuccess}>Assertion must be true on contract:&nbsp;<b>{data.assertion}</b></RenderCondition></li>}
+                                {hasCrossChain && <li><RenderCondition isTrue={crossChain}>A cross-chain transaction from:&nbsp;<b>{data.crossChainAddress} on {crossChainName}</b> to this contract</RenderCondition></li>}
+                                {hasSismo && <li><RenderCondition isTrue={sismo}>A Sismo Connect response with claim:&nbsp;<b>{data.sismoGroup}</b></RenderCondition></li>}
+                            </ol>
                         </div>
                         }
 
                         <Divider />
 
                         {/* <p>Contract Address: {uploadId}</p> */}
-                        <RenderObject keys={['name', 'description', 'owner', 'cid']} json={data} />
+                        <RenderObject keys={['name', 'description', 'owner', 'contract']} json={data} />
                         <p>
                             <a href={getExplorerUrl(ACTIVE_CHAIN, uploadId)} target="_blank">View contract</a>
                         </p>
+                        {/* {JSON.stringify(data, null, 2)} */}
                     </Col>
                     <Col span={10}>
                         <Card title="Actions">
-                            {data?.cid && <p>Access: <a href={ipfsUrl(data.cid)}>{data.cid}</a></p>}
+                            {!conditionsMet && <div>
+                                {hasAssertion && <div className='standard-margin'>
+                                    <h4>Assertion actions</h4>
+                                    <Button type="link" onClick={() => assert()}>Assert Truth (step 1)</Button>
+                                    <Button type="link" onClick={() => settle()}>Settle and Get Assertion Result (step 2)</Button>
+                                </div>}
 
-                            {hasAssertion && <div>
-                                <br />
-                                <h4>Assertion actions</h4>
-                                <Button type="link" onClick={() => assert()}>Assert Truth (step 1)</Button>
-                                <Button type="link" onClick={() => settle()}>Settle and Get Assertion Result (step 2)</Button>
-                            </div>}
 
-                            {!hasCrossChain && <div>
+                                {hasCrossChain && <div className='standard-margin'>
+                                    <h4>Cross chain actions</h4>
+                                    {/* {!isCrossChainAddressCorrect && <p className='error-text'>Must be logged in with {data?.crossChainAddress}</p>} */}
+                                    <Input
+                                        placeholder={`Enter ${crossChainName} DataContract address`}
+                                    />
+
+                                    <Button
+                                        disabled={!isCrossChainAddressCorrect}
+                                        loading={rpcLoading}
+                                        onClick={submitTransaction}
+                                    >Send transaction</Button>
+
+
+                                </div>}
+                                {hasSismo && <div className='standard-margin'>
+                                    <h4>Sismo verification</h4>
+                                    <SismoButton onResponseBytes={onResponse} />
+
+                                    {responseBytes && <Button type="link" onClick={verifySismo}>Verify Sismo credential</Button>}
+
+                                </div>}
+
                                 <br />
-                                <h4>Cross chain actions</h4>
-                                {/* {!isCrossChainAddressCorrect && <p className='error-text'>Must be logged in with {data?.crossChainAddress}</p>} */}
-                                <Input
-                                    placeholder={`Enter ${crossChainName} DataContract address`}
-                                />
+
 
                                 <Button
-                                    disabled={!isCrossChainAddressCorrect}
-                                    loading={rpcLoading}
-                                    onClick={submitTransaction}
-                                >Send transaction</Button>
-
+                                    type="primary"
+                                    size="large"
+                                    loading={rpcLoading || loading}
+                                    disabled={rpcLoading || loading} onClick={accessData}>Attempt Access</Button>
 
                             </div>}
 
-                            <br />
+                            {conditionsMet && <div>
+                                <h3>Conditions met</h3>
+                                <br />
+                                <Button type="primary" onClick={e => {
+                                    e.preventDefault()
+                                    downloadZipFileFromCid(data.cid)
+                                }}>Download data here</Button></div>}
 
 
-                            <Button
-                                type="primary"
-                                size="large"
-                                disabled={loading} loading={loading} onClick={accessData}>Check Access</Button>
                             <br />
                             {rpcLoading && <div>
+                                <br />
                                 <Spin size="large" />
                             </div>
                             }

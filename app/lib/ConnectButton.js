@@ -4,7 +4,7 @@ import { useAccount, useConnect, useDisconnect, useNetwork, useSwitchNetwork } f
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import { ACTIVE_CHAIN } from '../constants'
  
-function ConnectButton({buttonType = 'primary', text = 'Connect Wallet'}) {
+function ConnectButton({size='large', buttonType = 'primary', text = 'Connect Wallet', connectOnMount=false}) {
   const { address, isConnected } = useAccount()
   const { connect } = useConnect({
     connector: new InjectedConnector(),
@@ -14,6 +14,11 @@ function ConnectButton({buttonType = 'primary', text = 'Connect Wallet'}) {
   useSwitchNetwork()
 
   const network = useNetwork()
+  useEffect(() => {
+    if (connectOnMount) {
+      connect()
+    }
+  }, [])
 
   useEffect(() => {
     // console.log('check switch', network.chain, pendingChainId, ACTIVE_CHAIN.id, isConnected);
@@ -26,10 +31,10 @@ function ConnectButton({buttonType = 'primary', text = 'Connect Wallet'}) {
     return (
       <div>
         Connected to: {address}
-        <Button type="link" onClick={() => disconnect()}>Disconnect</Button>
+        <Button type="link" size={size} onClick={() => disconnect()}>Disconnect</Button>
       </div>
     )
-  return <Button type={buttonType} onClick={() => connect()}>{text}</Button>
+  return <Button type={buttonType} size={size} onClick={() => connect()}>{text}</Button>
 }
 
 export default ConnectButton

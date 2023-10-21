@@ -1,1 +1,2 @@
 @wormhole-solidity-sdk=lib/wormhole-solidity-sdk
+@sismo-connect-solidity=lib/sismo-connect-solidity

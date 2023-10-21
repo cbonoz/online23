@@ -7,3 +7,6 @@
 [submodule "contracts/lib/wormhole-solidity-sdk"]
 	path = contracts/lib/wormhole-solidity-sdk
 	url = https://github.com/wormhole-foundation/wormhole-solidity-sdk
+[submodule "contracts/lib/sismo-connect-solidity"]
+	path = contracts/lib/sismo-connect-solidity
+	url = https://github.com/sismo-core/sismo-connect-solidity
