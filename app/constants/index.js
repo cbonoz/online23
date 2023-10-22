@@ -3,7 +3,7 @@ import { polygonMumbai, avalanche, bsc, mainnet, filecoinCalibration, avalancheF
 export const APP_NAME = 'ChainGuard'
 export const APP_DESC = 'Cross-chain conditional data management and security'
 
-export const ZIP_FILE_NAME = 'data.zip'
+export const ENC_FILE_NAME = 'encryptedzip.txt'
 
 export const CHAIN_OPTIONS = [
   polygonMumbai, avalancheFuji, scrollSepolia
@@ -14,8 +14,8 @@ export const CHAIN_MAP = CHAIN_OPTIONS.reduce((acc, chain) => {
   return acc
 }, {})
 
-export const ACTIVE_CHAIN = polygonMumbai;// scrollSepolia;
-// export const ACTIVE_CHAIN = scrollSepolia;
+// export const ACTIVE_CHAIN = polygonMumbai;// scrollSepolia;
+export const ACTIVE_CHAIN = scrollSepolia;
 
 
 // https://docs.uma.xyz/resources/network-addresses

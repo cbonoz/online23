@@ -34,7 +34,7 @@ export default function About() {
                 {APP_NAME} is an open source project. You can find the code on GitHub&nbsp;
                 <a href="https://github.com/cbonoz/online23" target="_blank">here</a>.
             </p>
-            <div>
+            <p>
 
                 {/* Create upload */}
                 <Button type="primary" onClick={() => {
@@ -42,7 +42,7 @@ export default function About() {
                 }}>Create new data upload</Button>&nbsp;
 
 
-            </div>
+            </p>
 
         </div>
     )

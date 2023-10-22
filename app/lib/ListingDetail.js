@@ -12,7 +12,7 @@ import {
     Input,
 } from 'antd';
 import { getExplorerUrl, getRpcError, humanError, ipfsUrl, isEmpty, } from '../util';
-import { ACTIVE_CHAIN, APP_NAME, CHAIN_MAP, CHAIN_OPTIONS, ZIP_FILE_NAME, } from '../constants';
+import { ACTIVE_CHAIN, APP_NAME, CHAIN_MAP, CHAIN_OPTIONS, DEFAULT_ACCESS_CONDITIONS, ENC_FILE_NAME, } from '../constants';
 import RenderObject from '../lib/RenderObject';
 
 import { assertTruth, getMetadata, requestAccess, settleAndGetAssertionResult, verifySismoConnectResponse } from '../util/listingContract';
@@ -20,6 +20,7 @@ import { useAccount, useNetwork } from 'wagmi';
 import { useEthersSigner } from '../hooks/useEthersSigner';
 import ConnectButton from './ConnectButton';
 import SismoButton from './SismoButton';
+import { decryptUserFile } from '../util/litHelper';
 
 
 const ListingDetail = ({ uploadId }) => {
@@ -55,9 +56,10 @@ const ListingDetail = ({ uploadId }) => {
     async function accessData() {
         setRpcPending()
         try {
-            await requestAccess(signer, uploadId);
+            const res = await requestAccess(signer, uploadId);
             console.log('request access', res)
-            setResult(res)
+            setResult({ 'accessRequest': true })
+            await getMetadata(signer, uploadId)
         } catch (e) {
             console.log('error requesting access', e)
             // alert('Error requesting access: ' + humanError(e));
@@ -179,12 +181,16 @@ const ListingDetail = ({ uploadId }) => {
     }
 
     async function downloadZipFileFromCid(cid) {
+        setError()
         console.log('downloadZipFileFromCid', cid)
-        const zipFileUrl = ipfsUrl(cid, ZIP_FILE_NAME)
+        const zipFileUrl = ipfsUrl(cid, ENC_FILE_NAME)
         const res = await fetch(zipFileUrl)
-        const blob = await res.blob()
-        const fileName = cid + '.zip'
-        const file = new File([blob], fileName, { type: 'application/zip' })
+        const resText = await res.text();
+        const {ciphertext, dataToEncryptHash} = JSON.parse(resText)
+
+        const blob = decryptUserFile(ciphertext, dataToEncryptHash, DEFAULT_ACCESS_CONDITIONS);
+        const fileName = 'data.zip'
+        const file = new File([blob], fileName, { type: 'application/zip' });
         const url = URL.createObjectURL(file)
         const a = document.createElement('a')
         a.href = url
@@ -308,7 +314,9 @@ const ListingDetail = ({ uploadId }) => {
                             </div>}
 
                             {conditionsMet && <div>
-                                <h3>Conditions met</h3>
+                                <h3 className='success-text'>Data available for download
+                                {data?.cid && <span>&nbsp;✅</span>}
+                                </h3>
                                 <br />
                                 <Button type="primary" onClick={e => {
                                     e.preventDefault()

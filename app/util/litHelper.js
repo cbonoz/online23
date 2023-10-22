@@ -1,5 +1,5 @@
 import * as LitJsSdk from "@lit-protocol/lit-node-client";
-import { ZIP_FILE_NAME } from "../constants";
+import { ENC_FILE_NAME } from "../constants";
 
 
 let litNodeClient;
@@ -19,7 +19,7 @@ export const initClient = async () => {
 export async function encryptAndZipUserFiles(files, accessControlConditions) {
   await initClient()
   const authSig = await LitJsSdk.checkAndSignAuthMessage({ chain })
-  const {ciphertext, dataToEncryptHash} = await LitJsSdk.zipAndEncryptFiles(
+  const { ciphertext, dataToEncryptHash } = await LitJsSdk.zipAndEncryptFiles(
     files,
     {
       accessControlConditions,
@@ -33,7 +33,8 @@ export async function encryptAndZipUserFiles(files, accessControlConditions) {
   // Create a new File object with the encrypted data
   // Rename file to data.{ext} with same extension
   // const blob = new Blob([ciphertext], { type: 'application/octet-stream' })
-  const encryptedFile = new File([ciphertext], ZIP_FILE_NAME, { type: 'application/zip' })
+  const data = JSON.stringify({ciphertext, dataToEncryptHash})
+  const encryptedFile = new File([data], ENC_FILE_NAME);
 
   return {
     encryptedFile
@@ -41,16 +42,14 @@ export async function encryptAndZipUserFiles(files, accessControlConditions) {
 }
 
 // https://github.com/LIT-Protocol/lit-js-sdk/blob/main/api_docs.md#decryptfileandzipwithmetadata
-export async function decryptUserFile(file, accessControlConditions) {
-  initClient()
+export async function decryptUserFile(ciphertext, dataToEncryptHash, accessControlConditions) {
+  await initClient()
   const authSig = await LitJsSdk.checkAndSignAuthMessage({ chain })
-  const { decryptedFile, metadata } = await LitJsSdk.decryptFileAndZipWithMetadata(
-    {
-      accessControlConditions,
-      file,
-      authSig,
-      chain,
-      litNodeClient
-    });
-  return { decryptedFile, metadata }
+  const decryptedResult = await LitJsSdk.decryptToZip(
+    { ciphertext, dataToEncryptHash, accessControlConditions, authSig, chain },
+    litNodeClient
+  );
+  console.log('dec', decryptedResult);
+  const zipAssets = decryptedResult['encryptedAssets/']
+  return await zipAssets.async("blob");
 }

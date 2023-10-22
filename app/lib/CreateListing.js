@@ -91,7 +91,7 @@ function CreateListing() {
           cid = await uploadFiles(
             files,
             res,
-            data.accessControlConditions || DEFAULT_ACCESS_CONDITIONS
+            DEFAULT_ACCESS_CONDITIONS
           );
         } else {
           throw new Error("No files found");
@@ -148,6 +148,10 @@ function CreateListing() {
     } finally {
       setLoading(false)
     }
+  };
+
+  const openTab = (url) => {
+    window.open(url, "_blank");
   };
 
   const getStep = () => {
@@ -248,7 +252,7 @@ function CreateListing() {
                   <Switch
                     checked={data.hasAssertion}
                     onChange={(e) => updateData("hasAssertion", e)}
-                  />&nbsp;<span className="bold">Add logical assertion&nbsp;
+                  />&nbsp;<span className="bold">Add logical assertion (validated by UMA)&nbsp;
                     <Tooltip className="pointer" title="This is a statement that will be used to determine if the data is accessible. For example, if the statement is 'Argentina won the 2022 Fifa world cup in Qatar' this would release the data if or once true">
                       <InfoCircleOutlined className="info-icon" />
                     </Tooltip>
@@ -271,7 +275,7 @@ function CreateListing() {
                   <Switch
                     checked={data.hasCrossChainCondition}
                     onChange={(e) => updateData("hasCrossChainCondition", e)}
-                  />&nbsp;<span className="bold">Add cross-chain condition&nbsp;
+                  />&nbsp;<span className="bold">Add cross-chain condition (validated by Wormhole)&nbsp;
                     <Tooltip className="pointer" title="This is a condition that requires a cross chain action to take place before the data can be accessed.">
                       <InfoCircleOutlined className="info-icon" />
                     </Tooltip>
@@ -348,7 +352,7 @@ function CreateListing() {
               {/* Checkbox for useCid */}
               <br />
               <br />
-              <h4>Is this a large dataset (over 5MB) or do you have a CID already?&nbsp;
+              <h4>Is this a large dataset over 5MB or do you have a CID already?&nbsp;
 
                 <Checkbox
                   type="checkbox"
@@ -417,25 +421,26 @@ function CreateListing() {
                 title="Upload created! 🎉"
                 subTitle="Access your hosted encrypted data and shareable url below"
                 extra={[
-                  <a href={ipfsUrl(result.cid)} target="_blank">
-                    Download files
-                  </a>,
-                  <a href={result.contractUrl} target="_blank">
+
+                  <Button type="primary" onClick={() => openTab(result.contractUrl)} target="_blank">
                     View created contract
-                  </a>
+                  </Button>,
+                  <Button type="secondary" onClick={() => openTab(ipfsUrl(result.cid))} target="_blank">
+                    View files
+                  </Button>,
                 ]}
               />
               <div>
 
                 <br />
                 <br />
-                <p>
-                  Share or post this page with potential buyers:
+                <div>
+                  <h5>Share or post this page with potential accessors:</h5>
                   <br />
                   <a href={result.uploadUrl} target="_blank">
                     View upload page
-                  </a> (the upload may take a few minutes to become available on the network).
-                </p>
+                  </a>
+                </div>
               </div>
             </div>
             )}
