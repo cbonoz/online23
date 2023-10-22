@@ -1,4 +1,4 @@
-import { polygonMumbai, avalanche, bsc, mainnet, filecoinCalibration, avalancheFuji, scrollSepolia } from '@wagmi/core/chains'
+import { polygonMumbai, avalanche, bsc, mainnet, filecoinCalibration, avalancheFuji, scrollSepolia, polygonZkEvmTestnet } from '@wagmi/core/chains'
 
 export const APP_NAME = 'ChainGuard'
 export const APP_DESC = 'Cross-chain conditional data management and security'
@@ -6,7 +6,7 @@ export const APP_DESC = 'Cross-chain conditional data management and security'
 export const ENC_FILE_NAME = 'encryptedzip.txt'
 
 export const CHAIN_OPTIONS = [
-  polygonMumbai, avalancheFuji, scrollSepolia
+  polygonMumbai, avalancheFuji, scrollSepolia, polygonZkEvmTestnet
 ]
 
 export const CHAIN_MAP = CHAIN_OPTIONS.reduce((acc, chain) => {

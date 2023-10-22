@@ -60,13 +60,13 @@ If the conditions above are met, the data is revealed and decrypted at the shari
 
 ## Technologies used
 
-Scroll/Polygon: Origin contract. Cross chain interactions low cost and facilitated by these core chains for the DataContract. Every transaction or data access attempt is logged to the contract history.
+Scroll Sepolia / Polygon Mumbai: Origin contract networks. Cross chain interactions low cost and facilitated by these core chains for the DataContract. Every transaction or data access attempt is logged to the contract history. Each network supports a different selection of conditions based on supported data providers/oracles.
 
 UMA: ChainGuard allows users to optionally define custom unlocking conditions for their encrypted data. Users can specify natural language statements that need to be fulfilled before the data is decrypted. This feature ensures that data is only accessible when specific conditions are met, adding an extra layer of security.
 
 Sismo: Verify connected wallet claims beyond just connected address. . By integrating Sismo's verification system, the app can ensure that the wallets associated with users meet certain criteria or standards, enhancing the trustworthiness of the data access process.
 
-Filecoin: Data upload and security until unencrypted. When users want to store their data securely, the app could utilize Filecoin to ensure that the data remains encrypted and protected until it is accessed and decrypted. This approach ensures the long-term security of sensitive data.
+Filecoin: Data upload and security with encryption by Lit Protocol. When users want to store their data securely, the app could utilize Filecoin to ensure that the data remains encrypted and protected until it is accessed and decrypted. This approach ensures the long-term security of sensitive data.
 
 Wormhole: Cross-chain messaging. Enforce that data can only be accessed when a cross chain event occurs. Users can set conditions that trigger the decryption process based on events happening on other blockchains. This enhances the security and control over data access.
 
@@ -94,7 +94,7 @@ This command deploys the build site to vercel by default, feel free to edit the 
 
 ### Screenshots
 
-![Alt text](img/contract.png) ![Alt text](img/assert.png) ![Alt text](img/constructor.png) ![Alt text](img/dl.png) ![Alt text](img/encrypted.png) ![Alt text](img/home.png) ![Alt text](img/hosted.png) ![Alt text](img/scroll.png) ![Alt text](img/sismo.png) ![Alt text](img/wormhole.png) ![Alt text](img/created.png) ![Alt text](img/about.png)
+![Alt text](img/contract.png) ![Alt text](img/assert.png) ![Alt text](img/constructor.png) ![Alt text](img/dl.png) ![Alt text](img/encrypted.png) ![Alt text](img/home.png) ![Alt text](img/hosted.png) ![Alt text](img/scroll.png) ![Alt text](img/sismo.png) ![Alt text](img/wormhole.png) ![Alt text](img/created.png) ![Alt text](img/about.png) ![Alt text](conditions.png)
 
 
 ## Potential future work
