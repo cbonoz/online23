@@ -1,5 +1,5 @@
 // Compiled data contract ABI.
-export const DATA_CONTRACT_SCROLL = {
+export const DATA_CONTRACT = {
   "abi": [
     {
       "inputs": [
