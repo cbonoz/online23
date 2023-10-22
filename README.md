@@ -50,7 +50,7 @@ For every data upload, a smart contract is deployed that secures the payload. Ev
 
 Cross chain transactions can occur from any other `DataContract` deployment to the deployed contract in order to satisfy the cross chain condition.
 
-If the conditions above are met, the data is revealed and decrypted at the sharing url and delivered decryped to the user on the page via distributed Filecoin storage and Lit protocol for decryption.
+If the conditions above are met, the data is revealed and decrypted at the sharing url and delivered decrypted to the user on the page via distributed Filecoin storage and Lit protocol for decryption.
 
 ### Core functions
 * Upload and lock dataset
