@@ -31,7 +31,7 @@ export default function About() {
 
             {/* github */}
             <p>
-                {APP_NAME} is an open source project. You can find the code on GitHub&nbsp;
+                {APP_NAME} is an open source project and a hackathon prototype (hosted as-is). You can find the code on GitHub&nbsp;
                 <a href="https://github.com/cbonoz/online23" target="_blank">here</a>.
             </p>
             <p>

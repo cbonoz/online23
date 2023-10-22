@@ -15,10 +15,6 @@ Built for EthOnline 2023.
 Demo video: https://youtu.be/zMrJAaM4SG0
 
 
-<!-- Live Demo: 
-
-Video -->
-
 ## Inspiration
 
 Traditional encryption is fairly basic i.e. are you the holder of this key, do you have access to this data.
@@ -64,7 +60,9 @@ If the conditions above are met, the data is revealed and decrypted at the shari
 
 ## Example contracts:
 
-Live demo: https://online23.vercel.app/upload/0xBcb0149902f84b5D7ac521190B868b28dFDF369A (Polygon testnet)
+Live demo: https://chainguard23.vercel.app (Polygon testnet) 
+
+Example upload: https://chainguard23.vercel.app/upload/0xBcb0149902f84b5D7ac521190B868b28dFDF369A (Polygon testnet)
 
 Scroll Sepolia (verified): https://sepolia-blockscout.scroll.io/address/0x77967bF237Dc1D1C773c65d05b12578D7Efa6aC7
 
