@@ -14,8 +14,8 @@ export const CHAIN_MAP = CHAIN_OPTIONS.reduce((acc, chain) => {
   return acc
 }, {})
 
-// export const ACTIVE_CHAIN = polygonMumbai;// scrollSepolia;
-export const ACTIVE_CHAIN = scrollSepolia;
+export const ACTIVE_CHAIN = polygonMumbai;// scrollSepolia;
+// export const ACTIVE_CHAIN = scrollSepolia;
 
 
 // https://docs.uma.xyz/resources/network-addresses
@@ -63,11 +63,12 @@ export const SISMO_IMPERSONATE = [
 
 
 
+// "assertion": "The Philadelphia eagles won the super bowl in 2023",
 export const EXAMPLE_ITEM = {
     "id": 1,
-    "name": "Lioness health data set",
-    "description": "The data contains health data for employees at Lioness medical from Q1 2023",
-    "assertion": "The Philadelphia eagles won the super bowl in 2023",
+    "name": "Disposition of assets [Trust & Will]",
+    "description": "Private instructions for how assets of the family should be shared post mortem.",
+    "assertion": "Lisa Marie Presley daughter of Elvis Presley has passed away",
     "crossChainId": avalancheFuji.id,
     "crossChainAddress": "0xf4982D4aC99d25d89Cc8993a88Dc643832B1515b",
     "sismoGroup": "0x1cde61966decb8600dfd0749bd371f12",  

@@ -85,7 +85,7 @@ export async function requestAccess(signer, contractAddress) {
     await tx.wait();
     console.log("Request access tx...", tx);
     const result = await contract.requestAccess.call();
-    return { cid: result };
+    return { requestAccess: true}
 }
 
 export const getMetadata = async (signer, address) => {

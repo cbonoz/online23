@@ -136,12 +136,15 @@ contract DataContract is IWormholeReceiver, SismoConnect {
         bytes memory response
     ) public returns (SismoConnectVerifiedResult memory) {
         ClaimRequest[] memory claims = new ClaimRequest[](1);
+        AuthRequest[] memory auths = new AuthRequest[](0);
         claims[0] = buildClaim({groupId: sismoGroupId});
         // verify the response regarding our original request
         // otherwise throws error
         SismoConnectVerifiedResult memory result = verify({
             responseBytes: response,
-            claims: claims
+            auths: auths,
+            claims: claims,
+            signature: buildSignature({message: "I vote Yes to Privacy"})
         });
         sismoVerified[msg.sender] = true;
         return result;

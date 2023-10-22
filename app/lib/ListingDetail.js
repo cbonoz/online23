@@ -21,6 +21,7 @@ import { useEthersSigner } from '../hooks/useEthersSigner';
 import ConnectButton from './ConnectButton';
 import SismoButton from './SismoButton';
 import { decryptUserFile } from '../util/litHelper';
+import JSZip from 'jszip';
 
 
 const ListingDetail = ({ uploadId }) => {
@@ -58,7 +59,7 @@ const ListingDetail = ({ uploadId }) => {
         try {
             const res = await requestAccess(signer, uploadId);
             console.log('request access', res)
-            setResult({ 'accessRequest': true })
+            setResult(res)
             await getMetadata(signer, uploadId)
         } catch (e) {
             console.log('error requesting access', e)
@@ -188,7 +189,13 @@ const ListingDetail = ({ uploadId }) => {
         const resText = await res.text();
         const {ciphertext, dataToEncryptHash} = JSON.parse(resText)
 
-        const blob = decryptUserFile(ciphertext, dataToEncryptHash, DEFAULT_ACCESS_CONDITIONS);
+        const zipFileMap = await decryptUserFile(ciphertext, dataToEncryptHash, DEFAULT_ACCESS_CONDITIONS);
+        // Arrange zipobjects into downloadable zip
+        const zip = new JSZip();
+        for (const [fileName, zipObjectFile] of Object.entries(zipFileMap)) {
+            zip.file(fileName, await zipObjectFile.async('blob'));
+        }
+        const blob = await zip.generateAsync({ type: 'blob' })
         const fileName = 'data.zip'
         const file = new File([blob], fileName, { type: 'application/zip' });
         const url = URL.createObjectURL(file)
@@ -263,7 +270,7 @@ const ListingDetail = ({ uploadId }) => {
                         <Divider />
 
                         {/* <p>Contract Address: {uploadId}</p> */}
-                        <RenderObject keys={['name', 'description', 'owner', 'contract']} json={data} />
+                        <RenderObject keys={['name', 'description', 'owner', 'contract', 'cid']} json={data} />
                         <p>
                             <a href={getExplorerUrl(ACTIVE_CHAIN, uploadId)} target="_blank">View contract</a>
                         </p>

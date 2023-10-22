@@ -50,6 +50,5 @@ export async function decryptUserFile(ciphertext, dataToEncryptHash, accessContr
     litNodeClient
   );
   console.log('dec', decryptedResult);
-  const zipAssets = decryptedResult['encryptedAssets/']
-  return await zipAssets.async("blob");
+  return decryptedResult;
 }

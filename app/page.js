@@ -14,7 +14,8 @@ const CHECKLIST_ITEMS = [
   "No user accounts or vendor agreements required"
 ];
 
-const HERO_IMAGE = 'https://assets-v2.lottiefiles.com/a/b2e71c48-1173-11ee-af24-e38df89b1a8a/esieSHm0ao.gif'
+// const HERO_IMAGE = 'https://assets-v2.lottiefiles.com/a/b2e71c48-1173-11ee-af24-e38df89b1a8a/esieSHm0ao.gif'
+const HERO_IMAGE = 'https://mloegv6p7igz.i.optimole.com/cb:c8bm~2d7d7/w:470/h:467/q:mauto/ig:avif/f:best/https://syndrometech.net/wp-content/uploads/2020/11/Data-Center_-Syndrome.gif'
 
 
 const Home = () => {
@@ -48,7 +49,7 @@ const Home = () => {
         </div>
       </Col>
       <Col span={12}>
-        <Image width={400} height={400} className='hero-image' src={HERO_IMAGE} alt={APP_NAME}/>
+        <Image width={300} height={475} className='hero-image' src={HERO_IMAGE} alt={APP_NAME}/>
       </Col>
     </Row>
 
