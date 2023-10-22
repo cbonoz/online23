@@ -300,7 +300,7 @@ function CreateListing() {
 
                     <Select
                       style={{ width: 200 }}
-                      value={data.crossChainId}
+                      value={CHAIN_MAP[data.crossChainId]?.name || ''}
                       onChange={(value) => updateData("crossChainId", value)}
                     >
                       {Object.keys(WORMHOLE_RELAYER_MAP).map((chainId) => (

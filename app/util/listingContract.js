@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { DATA_CONTRACT } from "./metadata";
+import { formatDate } from ".";
 
 export async function deployContract(signer, cid, assertion, name, description, crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress, sismoGroup) {
     // Deploy contract with ethers
@@ -9,7 +10,11 @@ export async function deployContract(signer, cid, assertion, name, description, 
         signer
     );
 
-    const contract = await factory.deploy(cid, assertion, name, description, crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress, sismoGroup);
+    const options = {
+        // gasLimit: 3000000,
+        // gasPrice: 10000000000,
+    }
+    const contract = await factory.deploy(cid, assertion, name, description, crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress, sismoGroup, options);
     // log
     console.log("Deploying contract...", cid, assertion, name, description, crossChainAddress, crossChainId, wormholeAddress, umaOracleAdress, sismoGroup);
 
@@ -70,7 +75,22 @@ export const settleAndGetAssertionResult = async (signer, contractAddress) => {
     console.log("settleAndGetAssertionResult tx...", tx);
     const result = await contract.settleAndGetAssertionResult.call();
     console.log('settle result', result)
-    return { settleAndGetAssertionResult: result };
+    return { settleAndGetAssertionResult: true };
+}
+
+export async function getAssertionOutcome(signer, contractAddress) {
+    const contract = new ethers.Contract(
+        contractAddress,
+        DATA_CONTRACT.abi,
+        signer
+    );
+    const result = await contract.getAssertion.call();
+    console.log('result', result)
+    return {
+        assertedAt: formatDate(result[2].toNumber()*1000),
+        settled: result[3] ? 'true': 'false',
+        expiration: formatDate(result[5].toNumber()*1000)
+    };
 }
 
 export async function requestAccess(signer, contractAddress) {

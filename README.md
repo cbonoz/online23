@@ -60,15 +60,17 @@ If the conditions above are met, the data is revealed and decrypted at the shari
 
 ## Technologies used
 
-Scroll/Polygon: Origin contract
+Scroll/Polygon: Origin contract. Cross chain interactions low cost and facilitated by these core chains for the DataContract. Every transaction or data access attempt is logged to the contract history.
 
-UMA: Used for natural language data unlock
+UMA: ChainGuard allows users to optionally define custom unlocking conditions for their encrypted data. Users can specify natural language statements that need to be fulfilled before the data is decrypted. This feature ensures that data is only accessible when specific conditions are met, adding an extra layer of security.
 
-Sismo: Verify connected wallet claims.
+Sismo: Verify connected wallet claims beyond just connected address. . By integrating Sismo's verification system, the app can ensure that the wallets associated with users meet certain criteria or standards, enhancing the trustworthiness of the data access process.
 
-Filecoin: Data upload and security until unencrypted
+Filecoin: Data upload and security until unencrypted. When users want to store their data securely, the app could utilize Filecoin to ensure that the data remains encrypted and protected until it is accessed and decrypted. This approach ensures the long-term security of sensitive data.
 
-Lit Protocol: Core encryption and decryption
+Wormhole: Cross-chain messaging. Enforce that data can only be accessed when a cross chain event occurs. Users can set conditions that trigger the decryption process based on events happening on other blockchains. This enhances the security and control over data access.
+
+Lit Protocol: Core encryption and decryption to IPFS and additional access criteria management. When users encrypt their data, Lit Protocol can provide robust encryption to secure the data. Additionally, it can manage access criteria, allowing users to define specific conditions for data decryption. The app can also use Lit Protocol to interact with IPFS for data storage and retrieval.
 
 NextJS: We use NextJS to create a responsive and interactive frontend interface that offers a seamless browsing experience for users. Deployed on vercel.
 
@@ -91,6 +93,8 @@ This command deploys the build site to vercel by default, feel free to edit the 
 `yarn build; yarn deploy`
 
 ### Screenshots
+
+![Alt text](img/contract.png) ![Alt text](img/assert.png) ![Alt text](img/constructor.png) ![Alt text](img/dl.png) ![Alt text](img/encrypted.png) ![Alt text](img/home.png) ![Alt text](img/hosted.png) ![Alt text](img/scroll.png) ![Alt text](img/sismo.png) ![Alt text](img/wormhole.png) ![Alt text](img/created.png) ![Alt text](img/about.png)
 
 
 ## Potential future work

@@ -15,7 +15,7 @@ import { getExplorerUrl, getRpcError, humanError, ipfsUrl, isEmpty, } from '../u
 import { ACTIVE_CHAIN, APP_NAME, CHAIN_MAP, CHAIN_OPTIONS, DEFAULT_ACCESS_CONDITIONS, ENC_FILE_NAME, } from '../constants';
 import RenderObject from '../lib/RenderObject';
 
-import { assertTruth, getMetadata, requestAccess, settleAndGetAssertionResult, verifySismoConnectResponse } from '../util/listingContract';
+import { assertTruth, getAssertionOutcome, getMetadata, requestAccess, settleAndGetAssertionResult, verifySismoConnectResponse } from '../util/listingContract';
 import { useAccount, useNetwork } from 'wagmi';
 import { useEthersSigner } from '../hooks/useEthersSigner';
 import ConnectButton from './ConnectButton';
@@ -60,12 +60,16 @@ const ListingDetail = ({ uploadId }) => {
             const res = await requestAccess(signer, uploadId);
             console.log('request access', res)
             setResult(res)
-            await getMetadata(signer, uploadId)
         } catch (e) {
             console.log('error requesting access', e)
             // alert('Error requesting access: ' + humanError(e));
             setError(getRpcError(e))
         } finally {
+            try {
+                await getMetadata(signer, uploadId)
+            } catch {
+                // ignore
+            }
             setRpcLoading(false)
         }
     }
@@ -110,17 +114,29 @@ const ListingDetail = ({ uploadId }) => {
             setRpcLoading(false)
         }
 
-
     }
 
     async function settle() {
         setRpcPending()
         try {
             const res = await settleAndGetAssertionResult(signer, uploadId);
-            console.log('settle', res)
-            setResult({
-                'settle': 'completed'
-            })
+            console.log('get assertion', res)
+            setResult(res)
+        } catch (e) {
+            setError(getRpcError(e))
+        } finally {
+            setRpcLoading(false)
+        }
+
+    }
+
+
+    async function getAssertion() {
+        setRpcPending()
+        try {
+            const res = await getAssertionOutcome(signer, uploadId);
+            console.log('get assertion', res)
+            setResult(res)
         } catch (e) {
             setError(getRpcError(e))
         } finally {
@@ -187,7 +203,7 @@ const ListingDetail = ({ uploadId }) => {
         const zipFileUrl = ipfsUrl(cid, ENC_FILE_NAME)
         const res = await fetch(zipFileUrl)
         const resText = await res.text();
-        const {ciphertext, dataToEncryptHash} = JSON.parse(resText)
+        const { ciphertext, dataToEncryptHash } = JSON.parse(resText)
 
         const zipFileMap = await decryptUserFile(ciphertext, dataToEncryptHash, DEFAULT_ACCESS_CONDITIONS);
         // Arrange zipobjects into downloadable zip
@@ -217,7 +233,11 @@ const ListingDetail = ({ uploadId }) => {
             await getMetadata(signer, uploadId)
         } catch (e) {
             console.error('verifySismo', e)
-            setError(getRpcError(e))
+            const err = getRpcError(e);
+            if (err.indexOf('argument') === -1) {
+                // set non argument error
+                setError(err)
+            }
         } finally {
             setRpcLoading(false)
         }
@@ -281,8 +301,11 @@ const ListingDetail = ({ uploadId }) => {
                             {!conditionsMet && <div>
                                 {hasAssertion && <div className='standard-margin'>
                                     <h4>Assertion actions</h4>
-                                    <Button type="link" onClick={() => assert()}>Assert Truth (step 1)</Button>
-                                    <Button type="link" onClick={() => settle()}>Settle and Get Assertion Result (step 2)</Button>
+                                    <Button type="link" onClick={assert}>Assert Truth (step 1)</Button>
+                                    <br />
+                                    <Button type="link" onClick={getAssertion}>Check expiration (step 2)</Button>
+                                    <br />
+                                    <Button type="link" onClick={settle}>Settle and Get Assertion Result (step 3)</Button>
                                 </div>}
 
 
@@ -322,7 +345,7 @@ const ListingDetail = ({ uploadId }) => {
 
                             {conditionsMet && <div>
                                 <h3 className='success-text'>Data available for download
-                                {data?.cid && <span>&nbsp;✅</span>}
+                                    {/* {data?.cid && <span>&nbsp;✅</span>} */}
                                 </h3>
                                 <br />
                                 <Button type="primary" onClick={e => {
