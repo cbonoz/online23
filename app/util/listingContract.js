@@ -75,7 +75,7 @@ export const settleAndGetAssertionResult = async (signer, contractAddress) => {
     console.log("settleAndGetAssertionResult tx...", tx);
     const result = await contract.settleAndGetAssertionResult.call();
     console.log('settle result', result)
-    return { settleAndGetAssertionResult: true };
+    return { settleAndGetAssertionResult: 'true' };
 }
 
 export async function getAssertionOutcome(signer, contractAddress) {

@@ -14,6 +14,8 @@ Built for EthOnline 2023.
 
 Demo video: https://youtu.be/zMrJAaM4SG0
 
+Live demo: https://online23.vercel.app/upload/0xBcb0149902f84b5D7ac521190B868b28dFDF369A (Polygon testnet)
+
 <!-- Live Demo: 
 
 Video -->
