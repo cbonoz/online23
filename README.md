@@ -42,9 +42,9 @@ More specific examples: Keep Network is a decentralized key management system th
 ## What it does
 
 ChainGuard can secure any piece of Filecoin data using any of the conditions below:
-1) A cross chain transaction has occured through Wormhole.
-2) An UMA oracle precondition has occurred (user specified). Example use cases: revealing data only after a person has died or a particular sports team won an event.
-3) A specified pre-determined address must be calling the contract, or the owner
+1) A cross chain transaction has occurred through Wormhole.
+2) An UMA oracle precondition has been asserted and settled (user specified). Example use cases: revealing data only after a person has died or a particular sports team won an event.
+3) A known address must be calling the contract, or be confirmed as part of a group or community via Sismo.
 
 For every data upload, a smart contract is deployed that secures the payload. Every uploaded artifact gets a unique sharable url on ChainGuard that can be accessed at any time, but only reveals the data on condition satisfaction.
 
