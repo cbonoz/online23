@@ -65,8 +65,8 @@ export const SISMO_IMPERSONATE = [
 
 export const EXAMPLE_ITEM = {
     "id": 1,
-    "name": "Oil price data set",
-    "description": "The data contains Weekly crude oil prices from 5/1987 to 9/2023",
+    "name": "Lioness health data set",
+    "description": "The data contains health data for employees at Lioness medical from Q1 2023",
     "assertion": "The Philadelphia eagles won the super bowl in 2023",
     "crossChainId": avalancheFuji.id,
     "crossChainAddress": "0xf4982D4aC99d25d89Cc8993a88Dc643832B1515b",

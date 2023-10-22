@@ -9,15 +9,15 @@ export default function RootLayout({ children }) {
   return (<html>
     {/* <Script async src="https://saturn.tech/widget.js" /> */}
     <head>
-      <link rel="favicon" href="favicon.ico" sizes="any" />
+      <link rel="icon" href="/favicon.ico" sizes="any" />
       <title>ChainGuard | Distributed data management and security</title>
       <meta name="description" content="Distributed data management and security" />
     </head>
     <body>
-    <WagmiWrapper>
-      <UiLayoutWrapper>
-        {children}
-      </UiLayoutWrapper>
+      <WagmiWrapper>
+        <UiLayoutWrapper>
+          {children}
+        </UiLayoutWrapper>
       </WagmiWrapper>
     </body>
   </html>

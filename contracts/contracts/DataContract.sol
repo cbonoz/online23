@@ -6,6 +6,7 @@ import "@wormhole-solidity-sdk/src/interfaces/IWormholeReceiver.sol";
 // https://github.com/UMAprotocol/protocol/tree/master/packages/core
 import "@uma/core/contracts/optimistic-oracle-v3/interfaces/OptimisticOracleV3Interface.sol";
 import "@sismo-connect-solidity/src/SismoConnectLib.sol";
+
 // buildConfig
 
 // https://github.com/wormhole-foundation/wormhole-solidity-sdk
@@ -17,7 +18,7 @@ contract DataContract is IWormholeReceiver, SismoConnect {
     bool public active; // if false, contract is inactive and no one can request access.
     uint256 public totalAccess; // total number of requests
 
-    IWormholeRelayer public immutable wormholeRelayer;
+    IWormholeRelayer public wormholeRelayer;
     uint256 constant GAS_LIMIT = 50_000;
 
     string private name;
@@ -83,13 +84,10 @@ contract DataContract is IWormholeReceiver, SismoConnect {
         string memory _description,
         address _crossChainAddress,
         uint256 _crossChainId,
-        address _wormholeRelayer,
+        address _wormholeAddress,
         address _umaAddress,
         bytes16 _sismoGroupId
-    )
-        SismoConnect(buildConfig(sismoAppId, true))
-    {
-        wormholeRelayer = IWormholeRelayer(_wormholeRelayer);
+    ) SismoConnect(buildConfig(sismoAppId, true)) {
         deployer = msg.sender;
         name = _name;
         description = _description;
@@ -102,7 +100,12 @@ contract DataContract is IWormholeReceiver, SismoConnect {
         active = true;
         crossChainSet = false;
         totalAccess = 0;
-        oov3 = OptimisticOracleV3Interface(_umaAddress);
+        if (crossChainId != 0) {
+            wormholeRelayer = IWormholeRelayer(_wormholeAddress);
+        }
+        if (assertedClaim.length != 0) {
+            oov3 = OptimisticOracleV3Interface(_umaAddress);
+        }
         // sismoGroupId = 0x1cde61966decb8600dfd0749bd371f12;
         sismoGroupId = _sismoGroupId;
     }
@@ -114,7 +117,6 @@ contract DataContract is IWormholeReceiver, SismoConnect {
         address sender,
         bool crossChainSet
     );
-
 
     struct ConditionResult {
         bool assertSuccess;
@@ -130,7 +132,9 @@ contract DataContract is IWormholeReceiver, SismoConnect {
     }
 
     // https://docs.sismo.io/sismo-docs/build-with-sismo-connect/getting-started-1
-    function verifySismoConnectResponse(bytes memory response) public {
+    function verifySismoConnectResponse(
+        bytes memory response
+    ) public returns (SismoConnectVerifiedResult memory) {
         ClaimRequest[] memory claims = new ClaimRequest[](1);
         claims[0] = buildClaim({groupId: sismoGroupId});
         // verify the response regarding our original request
@@ -140,6 +144,7 @@ contract DataContract is IWormholeReceiver, SismoConnect {
             claims: claims
         });
         sismoVerified[msg.sender] = true;
+        return result;
     }
 
     function requestAccess() public payable returns (string memory) {
@@ -202,8 +207,7 @@ contract DataContract is IWormholeReceiver, SismoConnect {
             ConditionResult memory
         )
     {
-
-        ConditionResult memory conditionResult =  ConditionResult(
+        ConditionResult memory conditionResult = ConditionResult(
             assertionSuccess,
             crossChainSet,
             hasAllowedAddress ? allowedAddresses[msg.sender] : true,

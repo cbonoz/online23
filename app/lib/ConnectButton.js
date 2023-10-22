@@ -2,7 +2,7 @@ import { Button } from 'antd'
 import { useEffect } from 'react'
 import { useAccount, useConnect, useDisconnect, useNetwork, useSwitchNetwork } from 'wagmi'
 import { InjectedConnector } from 'wagmi/connectors/injected'
-import { ACTIVE_CHAIN } from '../constants'
+import { CHAIN_MAP, ACTIVE_CHAIN } from '../constants'
  
 function ConnectButton({size='large', buttonType = 'primary', text = 'Connect Wallet', connectOnMount=false}) {
   const { address, isConnected } = useAccount()
@@ -22,10 +22,12 @@ function ConnectButton({size='large', buttonType = 'primary', text = 'Connect Wa
 
   useEffect(() => {
     // console.log('check switch', network.chain, pendingChainId, ACTIVE_CHAIN.id, isConnected);
-    if (network && network.chain?.id !== ACTIVE_CHAIN.id) {
+    const currentChainId = network?.chain?.id
+    if (currentChainId && currentChainId !== ACTIVE_CHAIN.id) {
+      console.log('switching network', CHAIN_MAP[currentChainId], CHAIN_MAP[ACTIVE_CHAIN.id])
       switchNetwork?.(ACTIVE_CHAIN.id)
     }
-  }, [pendingChainId, network, isConnected])
+  }, [network, isConnected])
 
   if (isConnected)
     return (
